@@ -23,6 +23,9 @@ cmds.group( em=True, name='grp_ctrl_ikWrist' )
 # Create circle control object
 cmds.circle( n='ctrl_ikWrist', nr=(0, 0, 1), c=(0, 0, 0) )
 
+# Delete history
+cmds.delete( 'ctrl_ikWrist', constructionHistory=True )
+
 # Parent the control to the group
 cmds.parent('ctrl_ikWrist', 'grp_ctrl_ikWrist')
 
@@ -74,6 +77,9 @@ cmds.xform('grp_ctrl_fkWrist', ro=rot, ws=True)
 # Create circle control object
 cmds.circle( n='ctrl_fkWrist', nr=(1, 0, 0), c=(0, 0, 0) )
 
+# Delete history
+cmds.delete( 'ctrl_fkWrist', constructionHistory=True )
+
 # Parent the control to the group
 cmds.parent('ctrl_fkWrist', 'grp_ctrl_fkWrist')
 cmds.setAttr( "ctrl_fkWrist.rotateY", 0 )
@@ -94,6 +100,8 @@ cmds.xform('grp_ctrl_fkElbow', ro=rot, ws=True)
 # Create circle control object
 cmds.circle( n='ctrl_fkElbow', nr=(1, 0, 0), c=(0, 0, 0) )
 
+# Delete history
+cmds.delete( 'ctrl_fkElbow', constructionHistory=True )
 
 # Parent the control to the group
 cmds.parent('ctrl_fkElbow', 'grp_ctrl_fkElbow')
@@ -114,6 +122,9 @@ cmds.xform('grp_ctrl_fkShoulder', ro=rot, ws=True)
 
 # Create circle control object
 cmds.circle( n='ctrl_fkShoulder', nr=(1, 0, 0), c=(0, 0, 0) )
+
+# Delete history
+cmds.delete( 'ctrl_fkShoulder', constructionHistory=True )
 
 # Parent the control to the group
 cmds.parent('ctrl_fkShoulder', 'grp_ctrl_fkShoulder')
@@ -179,5 +190,72 @@ cmds.parentConstraint( 'fk_elbow_jnt', 'bn_elbow_jnt' )
 
 cmds.parentConstraint( 'ik_wrist_jnt', 'bn_wrist_jnt', weight = 0.0 )
 cmds.parentConstraint( 'fk_wrist_jnt', 'bn_wrist_jnt' )
+
+# Deselect to avoid parenting
+cmds.select(d=True)
+
+# Create blend ctrl
+# Get ws position of wrist end joint
+pos = cmds.xform('bn_wristEnd_jnt', q=True, t=True, ws=True)
+
+# Create an empty group
+cmds.group( em=True, name='grp_ctrl_arm' )
+
+# Orient grp to joint
+rot = cmds.xform('bn_wristEnd_jnt', q=True, ro=True, ws=True)
+cmds.xform('grp_ctrl_arm', ro=rot, ws=True)
+
+# Create circle control object
+cmds.circle( n='ctrl_arm', nr=(1, 0, 0), c=(0, 0, 0) )
+
+# Delete history
+cmds.delete( 'ctrl_arm', constructionHistory=True )
+
+# Parent ctrl to group and group to wrist end joint
+cmds.parent('ctrl_arm', 'grp_ctrl_arm')
+cmds.setAttr( "ctrl_arm.rotateY", 0 )
+cmds.setAttr( "ctrl_arm.rotateZ", 90 )
+# Move the group to the joint
+cmds.xform('grp_ctrl_arm', t=pos, ws=True)
+cmds.parent('grp_ctrl_arm', 'bn_wristEnd_jnt')
+
+# Lock and hide ctrl attributes
+cmds.setAttr( 'ctrl_arm.tx', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.setAttr( 'ctrl_arm.ty', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.setAttr( 'ctrl_arm.tz', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.setAttr( 'ctrl_arm.rx', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.setAttr( 'ctrl_arm.ry', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.setAttr( 'ctrl_arm.rz', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.setAttr( 'ctrl_arm.sx', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.setAttr( 'ctrl_arm.sy', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.setAttr( 'ctrl_arm.sz', edit=True,  lock=True, keyable=False, channelBox=False )
+
+# Create blend attribute
+cmds.select( d=True )
+cmds.select( 'ctrl_arm' )
+cmds.addAttr( 'ctrl_arm', ln='FKIKBlend', at='long', min=0, max=10, dv=0 )
+cmds.setAttr( 'ctrl_arm.FKIKBlend', edit=True, keyable=True )
+cmds.setAttr( 'ctrl_arm.FKIKBlend', 0 )
+
+# Create nodes to perform the blend
+cmds.createNode( 'multiplyDivide', n='multDiv_FKIKBlender' )
+cmds.connectAttr( 'ctrl_arm.FKIKBlend', 'multDiv_FKIKBlender.input1X')
+cmds.setAttr( 'multDiv_FKIKBlender.input2X', 10 )
+
+cmds.createNode( 'plusMinusAverage', n='plusMinus_FKIKBlender' )
+cmds.setAttr( 'plusMinus_FKIKBlender.operation', 2 )
+cmds.setAttr( 'plusMinus_FKIKBlender.input1D[0]', 100 )
+cmds.connectAttr( 'multDiv_FKIKBlender.output.outputX', 'plusMinus_FKIKBlender.input1D[1]')
+
+cmds.connectAttr( 'multDiv_FKIKBlender.output.outputX', 'bn_shoulder_jnt_parentConstraint1.ik_shoulder_jntW0')
+cmds.connectAttr( 'plusMinus_FKIKBlender.output1D', 'bn_shoulder_jnt_parentConstraint1.fk_shoulder_jntW1')
+
+cmds.connectAttr( 'multDiv_FKIKBlender.outputX', 'bn_elbow_jnt_parentConstraint1.ik_elbow_jntW0')
+cmds.connectAttr( 'plusMinus_FKIKBlender.output1D', 'bn_elbow_jnt_parentConstraint1.fk_elbow_jntW1')
+
+cmds.connectAttr( 'multDiv_FKIKBlender.output.outputX', 'bn_wrist_jnt_parentConstraint1.ik_wrist_jntW0')
+cmds.connectAttr( 'plusMinus_FKIKBlender.output1D', 'bn_wrist_jnt_parentConstraint1.fk_wrist_jntW1')
+
+
 
 
