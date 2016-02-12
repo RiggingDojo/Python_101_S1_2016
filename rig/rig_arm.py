@@ -35,10 +35,15 @@ cmds.xform('grp_ctrl_ikWrist', t=pos, ws=True)
 # Parent ikh to ctrl
 cmds.parent('ikh_arm', 'ctrl_ikWrist')
 
+# Orient constraint ctrl to joint
+cmds.orientConstraint( 'ctrl_ikWrist', 'ik_wrist_jnt', mo = True)
+
 # Create pole vector
 pos = cmds.xform('ik_elbow_jnt', q=True, t=True, ws=True)
 pos[0] -= 2
-cmds.spaceLocator( n='ik_pv_arm', p=pos, a=True)
+cmds.spaceLocator( n='ik_pv_arm')
+print cmds.xform('ik_pv_arm', q=True, ws=True, t=True)
+cmds.xform('ik_pv_arm', ws=True, t=pos)
 
 # Attach pole vector to IK
 cmds.poleVectorConstraint( 'ik_pv_arm', 'ikh_arm' )
