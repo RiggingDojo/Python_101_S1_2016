@@ -1,23 +1,23 @@
 # Label names for the objects
-names = {'ikPrefix': 'ik', 
-         'fkPrefix': 'fk',
-         'groupPrefix': 'grp',
-         'controlPrefix': 'ctrl',
-         'jointSufix': 'jnt',
-         'bindPrefix': 'bn',
-         'poleVector': 'pv',
+names = {'ikPrefix': 'ik_', 
+         'fkPrefix': 'fk_',
+         'groupPrefix': 'grp_',
+         'controlPrefix': 'ctrl_',
+         'jointSufix': '_jnt',
+         'bindPrefix': 'bn_',
+         'poleVector': 'pv_',
          'shoulder': 'shoulder',
          'elbow': 'elbow',
          'wrist': 'wrist',
          'wristEnd': 'wristEnd',
-         'ikHandle': 'ikh',
-         'armSufix': 'arm',
-         'plusMinusPrefix': 'plusminus',
-         'multiplyDividePrefix': 'multdiv',
+         'ikHandle': 'ikh_',
+         'armSufix': '_arm',
+         'plusMinusPrefix': 'plusminus_',
+         'multiplyDividePrefix': 'multdiv_',
          'blendingNode': 'FKIK_Blender'
          }
          
-# Lists with joints data
+# Lists and dictionary with joints data
 joint_info = [['shoulder', [2.1, 0.0, 5.0]], 
               ['elbow', [-0.1, 0.0, 0.0]], 
               ['wrist', [-0.1, 0.0, -5.0]], 
@@ -29,18 +29,21 @@ joint_chains = (names['ikPrefix'],
 
 joint_dict = {}
   
-for i in joint_chains:
-    tmpjnt_lst = []
-    for j in range(len(joint_info)):
-        new_name = j + joint_info[j][0]
-        print new_name
-        tmpjnt_lst.append([new_name, joint_info[j][1]])
+for label in joint_chains:
+    tmpJoint_list = []
+    for i in range(len(joint_info)):
+        new_name = label + joint_info[i][0]
+        tmpJoint_list.append([new_name, joint_info[i][1]])
      
-    joint_dict[i] = tmpjnt_lst
-     
-print joint_dict
+    joint_dict[label] = tmpJoint_list
 
-
+# Create all joints
+for joint in joint_dict:
+    for i in range(len(joint_dict[joint])):
+        tmp_name = joint_dict[joint][i][0]
+        tmp_pos = joint_dict[joint][i][1]
+        cmds.joint(n = tmp_name, p = tmp_pos)
+    cmds.select(d = True)
 
 # Create IK rig
 cmds.joint(n='ik_shoulder_jnt', p=[2.1, 0, 5.0])
