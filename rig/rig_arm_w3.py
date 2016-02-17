@@ -21,7 +21,7 @@ names = {'ikPrefix': 'ik_',
 joint_info = [['shoulder', [2.1, 0.0, 5.0]], 
               ['elbow', [-0.1, 0.0, 0.0]], 
               ['wrist', [-0.1, 0.0, -5.0]], 
-              ['wristEnd', [1.0, 0.0, -8.0]]]
+              ['wristEnd', [-0.1, 0.0, -8.0]]]
              
 joint_chains = (names['ikPrefix'],
                 names['fkPrefix'], 
@@ -30,20 +30,59 @@ joint_chains = (names['ikPrefix'],
 joint_dict = {}
   
 for label in joint_chains:
+    
     tmpJoint_list = []
+    
     for i in range(len(joint_info)):
         new_name = label + joint_info[i][0]
         tmpJoint_list.append([new_name, joint_info[i][1]])
      
     joint_dict[label] = tmpJoint_list
 
-# Create all joints
-for joint in joint_dict:
-    for i in range(len(joint_dict[joint])):
-        tmp_name = joint_dict[joint][i][0]
-        tmp_pos = joint_dict[joint][i][1]
+# Iterate skeleton dictionary data to create joints, controls and groups       
+for key, value in joint_dict.iteritems():
+    
+    for i in range(len(value)):
+        tmp_name = value[i][0]
+        tmp_pos = value[i][1]
         cmds.joint(n = tmp_name, p = tmp_pos)
+    
     cmds.select(d = True)
+    
+    # Orient joints
+    for i in range(len(value)):
+        tmp_name = value[i][0]
+        cmds.joint(tmp_name, edit=True, zso=True, oj='xyz', sao='yup')
+    
+    # Create controls and groups
+    if key.startswith('fk'):
+        
+        for i in range(len(value)):
+            jnt_name = value[i][0]
+            grp_pos = value[i][1]
+            grp_name = names['groupPrefix'] + names['controlPrefix'] + jnt_name
+            grp_rot = cmds.xform(jnt_name, q=True, ro=True, ws=True)
+            ctrl_name = names['controlPrefix'] + jnt_name
+            
+            # Create empty group
+            cmds.group(em=True, name=grp_name)
+            
+            # Orient group to joint
+            cmds.xform(grp_name, ro=grp_rot, ws=True)
+            
+            # Create circle control object
+            cmds.circle(n=ctrl_name, nr=(1, 0, 0), c=(0, 0, 0))
+            
+            # Delete history
+            cmds.delete(ctrl_name, constructionHistory=True)
+            
+            # Parent the control to the group
+            cmds.parent(ctrl_name, grp_name)
+            cmds.setAttr(ctrl_name + '.rotateY', 0)
+
+            # Move the group to the joint
+            cmds.xform(grp_name, t=grp_pos, ws=True)
+
 
 # Create IK rig
 cmds.joint(n='ik_shoulder_jnt', p=[2.1, 0, 5.0])
@@ -185,7 +224,7 @@ cmds.setAttr( "ctrl_fkShoulder.rotateY", 0 )
 
 # Move the group to the joint
 cmds.xform('grp_ctrl_fkShoulder', t=pos, ws=True)
-
+------------------->>>>>>
 # Parent cntrls
 cmds.parent('grp_ctrl_fkElbow', 'ctrl_fkShoulder')
 cmds.parent('grp_ctrl_fkWrist', 'ctrl_fkElbow')
