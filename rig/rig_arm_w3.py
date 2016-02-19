@@ -10,18 +10,19 @@ names = {'ikPrefix': 'ik_',
          'elbow': 'elbow',
          'wrist': 'wrist',
          'wristEnd': 'wristEnd',
-         'ikHandle': 'ikh_',
-         'armSufix': '_arm',
+         'ikHandle': 'ikh',
+         'poleVector': 'pv',
+         'armSufix': 'arm',
          'plusMinusPrefix': 'plusminus_',
          'multiplyDividePrefix': 'multdiv_',
-         'blendingNode': 'FKIK_Blender'
+         'blendingNode': 'FKIK_Blend'
          }
          
 # Lists and dictionary with joints data
-joint_info = [['shoulder', [2.1, 0.0, 5.0]], 
-              ['elbow', [-0.1, 0.0, 0.0]], 
-              ['wrist', [-0.1, 0.0, -5.0]], 
-              ['wristEnd', [-0.1, 0.0, -8.0]]]
+joint_info = [[names['shoulder'] + names['jointSufix'], [2.1, 0.0, 5.0]], 
+              [names['elbow'] + names['jointSufix'], [-0.1, 0.0, 0.0]], 
+              [names['wrist'] + names['jointSufix'], [-0.1, 0.0, -5.0]], 
+              [names['wristEnd'] + names['jointSufix'], [-0.1, 0.0, -8.0]]]    
              
 joint_chains = (names['ikPrefix'],
                 names['fkPrefix'], 
@@ -60,293 +61,176 @@ for key, value in joint_dict.iteritems():
         for i in range(len(value)):
             jnt_name = value[i][0]
             grp_pos = value[i][1]
-            grp_name = names['groupPrefix'] + names['controlPrefix'] + jnt_name
+            grp_name = names['groupPrefix'] + names['controlPrefix'] + jnt_name[:-len(names['jointSufix'])]
             grp_rot = cmds.xform(jnt_name, q=True, ro=True, ws=True)
-            ctrl_name = names['controlPrefix'] + jnt_name
+            ctrl_name = names['controlPrefix'] + jnt_name[:-len(names['jointSufix'])]
             
-            # Create empty group
+            if 'End' not in jnt_name:
+                
+                # Create empty group
+                cmds.group(em=True, name=grp_name)
+                
+                # Orient group to joint
+                cmds.xform(grp_name, ro=grp_rot, ws=True)
+                
+                # Create circle control object
+                cmds.circle(n=ctrl_name, nr=(1, 0, 0), c=(0, 0, 0))
+                
+                # Delete history
+                cmds.delete(ctrl_name, constructionHistory=True)
+                
+                # Parent the control to the group
+                cmds.parent(ctrl_name, grp_name)
+                cmds.setAttr(ctrl_name + '.rotateY', 0)
+    
+                # Move the group to the joint
+                cmds.xform(grp_name, t=grp_pos, ws=True)
+    
+                # Orient constrain joints to ctrls
+                cmds.orientConstraint(ctrl_name, jnt_name)
+    
+                # Lock and hide ctrl attributes
+                cmds.setAttr(ctrl_name + '.tx', edit=True,  lock=True, keyable=False, channelBox=False)
+                cmds.setAttr(ctrl_name + '.ty', edit=True,  lock=True, keyable=False, channelBox=False) 
+                cmds.setAttr(ctrl_name + '.tz', edit=True,  lock=True, keyable=False, channelBox=False)
+                cmds.setAttr(ctrl_name + '.sx', edit=True,  lock=True, keyable=False, channelBox=False)
+                cmds.setAttr(ctrl_name + '.sy', edit=True,  lock=True, keyable=False, channelBox=False)
+                cmds.setAttr(ctrl_name + '.sz', edit=True,  lock=True, keyable=False, channelBox=False)
+
+        # Parent cntrls
+        cmds.parent(names['groupPrefix'] + names['controlPrefix'] + names['fkPrefix'] + names['elbow'], names['controlPrefix'] + names['fkPrefix'] + names['shoulder'])
+        cmds.parent(names['groupPrefix'] + names['controlPrefix'] + names['fkPrefix'] + names['wrist'], names['controlPrefix'] + names['fkPrefix'] + names['elbow'])
+
+        # Deselect to avoid parenting
+        cmds.select(d=True)
+        
+    elif key.startswith('ik'):
+        
+        # Ik handle
+        tmp_ikHandle = cmds.ikHandle(n=names['ikHandle'] + names['armSufix'], sj=names['ikPrefix'] + names['shoulder'] + names ['jointSufix'], ee=names['ikPrefix'] + names['wrist'] + names ['jointSufix'], sol='ikRPsolver', p=2, w=1 )
+        tmp_ikHandle = tmp_ikHandle[0]
+        # Create ik control
+        # Get ws position of wrist joint
+        pos = cmds.xform(names['ikPrefix'] + names['wrist'] + names['jointSufix'], q=True, t=True, ws=True)
+        
+        # Create an empty group
+        tmp_grp = cmds.group(em=True, name=names['groupPrefix'] + names['controlPrefix'] + names['ikPrefix'] + names['wrist'])
+        #tmp_grp = tmp_grp[0]
+        
+        # Create circle control object
+        tmp_ikCtrl = cmds.circle( n=names['controlPrefix'] + names['ikPrefix'] + names['wrist'], nr=(0, 0, 1), c=(0, 0, 0))
+        tmp_ikCtrl = tmp_ikCtrl[0]
+        
+        # Delete history
+        cmds.delete(tmp_ikCtrl, constructionHistory=True)
+        
+        # Parent the control to the group
+        cmds.parent(tmp_ikCtrl, tmp_grp)
+        
+        # Move the group to the joint
+        cmds.xform(tmp_grp, t=pos, ws=True)
+        
+        # Parent ikh to ctrl
+        cmds.parent(tmp_ikHandle, tmp_ikCtrl)
+        
+        # Orient constraint ctrl to joint
+        cmds.orientConstraint(tmp_ikCtrl, names['ikPrefix'] + names['wrist'] + names['jointSufix'], mo = True)
+        
+        # Create pole vector
+        pos = cmds.xform(names['ikPrefix'] + names['elbow'] + names['jointSufix'], q=True, t=True, ws=True)
+        pos[0] -= 2
+        tmp_PV = cmds.spaceLocator(n=names['ikPrefix'] + names['poleVector'] + names['armSufix'])
+        cmds.xform(tmp_PV, ws=True, t=pos)
+        
+        # Attach pole vector to IK
+        cmds.poleVectorConstraint(tmp_PV, tmp_ikHandle)
+        
+        # Lock and hide ctrl attributes
+        cmds.setAttr(tmp_ikCtrl + '.sx', edit=True,  lock=True, keyable=False, channelBox=False)
+        cmds.setAttr(tmp_ikCtrl + '.sy', edit=True,  lock=True, keyable=False, channelBox=False)
+        cmds.setAttr(tmp_ikCtrl + '.sz', edit=True,  lock=True, keyable=False, channelBox=False)
+        
+        # Deselect to avoid parenting
+        cmds.select(d=True)
+    
+    elif key.startswith('bn'):
+        
+        jnt_name = value[i][0]
+        
+        if 'End' in jnt_name:
+
+            # Create blend ctrl
+            grp_pos = value[i][1]
+            grp_name = names['groupPrefix'] + names['controlPrefix'] + names['armSufix']
+            grp_rot = cmds.xform(jnt_name, q=True, ro=True, ws=True)
+            ctrl_name = names['controlPrefix'] + names['armSufix']
+                        
+            # Create an empty group
             cmds.group(em=True, name=grp_name)
             
-            # Orient group to joint
-            cmds.xform(grp_name, ro=grp_rot, ws=True)
-            
+            # Orient grp to joint
+            rot = cmds.xform(jnt_name, q=True, ro=True, ws=True)
+            cmds.xform(grp_name, ro=rot, ws=True)
+
             # Create circle control object
-            cmds.circle(n=ctrl_name, nr=(1, 0, 0), c=(0, 0, 0))
-            
+            cmds.circle( n=ctrl_name, nr=(1, 0, 0), c=(0, 0, 0) )
+
             # Delete history
             cmds.delete(ctrl_name, constructionHistory=True)
-            
-            # Parent the control to the group
+
+            # Parent ctrl to group and group to wrist end joint
             cmds.parent(ctrl_name, grp_name)
             cmds.setAttr(ctrl_name + '.rotateY', 0)
+            cmds.setAttr(ctrl_name + '.rotateZ', 90)
 
             # Move the group to the joint
             cmds.xform(grp_name, t=grp_pos, ws=True)
+            cmds.parent(grp_name, jnt_name)
 
+            # Lock and hide ctrl attributes
+            cmds.setAttr(ctrl_name + '.tx', edit=True,  lock=True, keyable=False, channelBox=False)
+            cmds.setAttr(ctrl_name + '.ty', edit=True,  lock=True, keyable=False, channelBox=False)
+            cmds.setAttr(ctrl_name + '.tz', edit=True,  lock=True, keyable=False, channelBox=False)
+            cmds.setAttr(ctrl_name + '.rx', edit=True,  lock=True, keyable=False, channelBox=False)
+            cmds.setAttr(ctrl_name + '.ry', edit=True,  lock=True, keyable=False, channelBox=False)
+            cmds.setAttr(ctrl_name + '.rz', edit=True,  lock=True, keyable=False, channelBox=False)
+            cmds.setAttr(ctrl_name + '.sx', edit=True,  lock=True, keyable=False, channelBox=False)
+            cmds.setAttr(ctrl_name + '.sy', edit=True,  lock=True, keyable=False, channelBox=False)
+            cmds.setAttr(ctrl_name + '.sz', edit=True,  lock=True, keyable=False, channelBox=False)
+            
+            # Deselect to avoid parenting
+            cmds.select(d=True)
 
-# Create IK rig
-cmds.joint(n='ik_shoulder_jnt', p=[2.1, 0, 5.0])
-cmds.joint(n='ik_elbow_jnt', p=[-0.1, 0, 0.0])
-cmds.joint(n='ik_wrist_jnt', p=[1.0, 0, -5.0])
-cmds.joint(n='ik_wristEnd_jnt', p=[1.0, 0, -8.0])
-
-# Orient IK arm joints
-cmds.joint( 'ik_shoulder_jnt', edit=True, zso=True, oj='xyz', sao='yup' )  
-cmds.joint( 'ik_elbow_jnt', edit=True, zso=True, oj='xyz', sao='yup' )
-cmds.joint( 'ik_wrist_jnt', edit=True, zso=True, oj='xyz', sao='yup' )
-cmds.setAttr( 'ik_wristEnd_jnt.jointOrientY', 360 )
- 
-# Ik handle
-cmds.ikHandle( n='ikh_arm', sj='ik_shoulder_jnt', ee='ik_wrist_jnt', sol='ikRPsolver', p=2, w=1 )
- 
-# Create ik control
-# Get ws position of wrist joint
-pos = cmds.xform('ik_wrist_jnt', q=True, t=True, ws=True)
-
-# Create an empty group
-cmds.group( em=True, name='grp_ctrl_ikWrist' )
-
-# Create circle control object
-cmds.circle( n='ctrl_ikWrist', nr=(0, 0, 1), c=(0, 0, 0) )
-
-# Delete history
-cmds.delete( 'ctrl_ikWrist', constructionHistory=True )
-
-# Parent the control to the group
-cmds.parent('ctrl_ikWrist', 'grp_ctrl_ikWrist')
-
-# Move the group to the joint
-cmds.xform('grp_ctrl_ikWrist', t=pos, ws=True)
-
-# Parent ikh to ctrl
-cmds.parent('ikh_arm', 'ctrl_ikWrist')
-
-# Orient constraint ctrl to joint
-cmds.orientConstraint( 'ctrl_ikWrist', 'ik_wrist_jnt', mo = True)
-
-# Create pole vector
-pos = cmds.xform('ik_elbow_jnt', q=True, t=True, ws=True)
-pos[0] -= 2
-cmds.spaceLocator( n='ik_pv_arm')
-print cmds.xform('ik_pv_arm', q=True, ws=True, t=True)
-cmds.xform('ik_pv_arm', ws=True, t=pos)
-
-# Attach pole vector to IK
-cmds.poleVectorConstraint( 'ik_pv_arm', 'ikh_arm' )
-
-# Lock and hide ctrl attributes
-cmds.setAttr( 'ctrl_ikWrist.sx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_ikWrist.sy', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_ikWrist.sz', edit=True,  lock=True, keyable=False, channelBox=False )
-
-# Deselect to avoid parenting
-cmds.select(d=True)
-
-# Create FK rig
-# Create FK arm joints
-cmds.joint( n='fk_shoulder_jnt', p=[2.1, 0, 5.0] )
-cmds.joint( n='fk_elbow_jnt', p=[-0.1, 0, 0.0] )
-cmds.joint( n='fk_wrist_jnt', p=[1.0, 0, -5.0] )
-cmds.joint( n='fk_wristEnd_jnt', p=[1.0, 0, -8.0] )
-
-# Orient FK arm joints
-cmds.joint( 'fk_shoulder_jnt', edit=True, zso=True, oj='xyz', sao='yup' )  
-cmds.joint( 'fk_elbow_jnt', edit=True, zso=True, oj='xyz', sao='yup' )
-cmds.joint( 'fk_wrist_jnt', edit=True, zso=True, oj='xyz', sao='yup' )
-cmds.setAttr( 'fk_wristEnd_jnt.jointOrientY', 360 )
-
-# Get ws position of wrist joint
-pos = cmds.xform('fk_wrist_jnt', q=True, t=True, ws=True)
-
-# Create an empty group
-cmds.group( em=True, name='grp_ctrl_fkWrist' )
-
-# Orient grp to joint
-rot = cmds.xform('fk_wrist_jnt', q=True, ro=True, ws=True)
-cmds.xform('grp_ctrl_fkWrist', ro=rot, ws=True)
-
-# Create circle control object
-cmds.circle( n='ctrl_fkWrist', nr=(1, 0, 0), c=(0, 0, 0) )
-
-# Delete history
-cmds.delete( 'ctrl_fkWrist', constructionHistory=True )
-
-# Parent the control to the group
-cmds.parent('ctrl_fkWrist', 'grp_ctrl_fkWrist')
-cmds.setAttr( "ctrl_fkWrist.rotateY", 0 )
-
-# Move the group to the joint
-cmds.xform('grp_ctrl_fkWrist', t=pos, ws=True)
-
-# Get ws position of elbow joint
-pos = cmds.xform('fk_elbow_jnt', q=True, t=True, ws=True)
-
-# Create an empty group
-cmds.group( em=True, name='grp_ctrl_fkElbow' )
-
-# Orient grp to joint
-rot = cmds.xform('fk_elbow_jnt', q=True, ro=True, ws=True)
-cmds.xform('grp_ctrl_fkElbow', ro=rot, ws=True)
-
-# Create circle control object
-cmds.circle( n='ctrl_fkElbow', nr=(1, 0, 0), c=(0, 0, 0) )
-
-# Delete history
-cmds.delete( 'ctrl_fkElbow', constructionHistory=True )
-
-# Parent the control to the group
-cmds.parent('ctrl_fkElbow', 'grp_ctrl_fkElbow')
-cmds.setAttr( "ctrl_fkElbow.rotateY", 0 )
-
-# Move the group to the joint
-cmds.xform('grp_ctrl_fkElbow', t=pos, ws=True)
-
-# Get ws position of shoulder joint
-pos = cmds.xform('fk_shoulder_jnt', q=True, t=True, ws=True)
-
-# Create an empty group
-cmds.group( em=True, name='grp_ctrl_fkShoulder' )
-
-# Orient grp to joint
-rot = cmds.xform('fk_shoulder_jnt', q=True, ro=True, ws=True)
-cmds.xform('grp_ctrl_fkShoulder', ro=rot, ws=True)
-
-# Create circle control object
-cmds.circle( n='ctrl_fkShoulder', nr=(1, 0, 0), c=(0, 0, 0) )
-
-# Delete history
-cmds.delete( 'ctrl_fkShoulder', constructionHistory=True )
-
-# Parent the control to the group
-cmds.parent('ctrl_fkShoulder', 'grp_ctrl_fkShoulder')
-cmds.setAttr( "ctrl_fkShoulder.rotateY", 0 )
-
-
-# Move the group to the joint
-cmds.xform('grp_ctrl_fkShoulder', t=pos, ws=True)
-------------------->>>>>>
-# Parent cntrls
-cmds.parent('grp_ctrl_fkElbow', 'ctrl_fkShoulder')
-cmds.parent('grp_ctrl_fkWrist', 'ctrl_fkElbow')
-
-# Orient constrain joints to ctrls
-cmds.orientConstraint( 'ctrl_fkShoulder', 'fk_shoulder_jnt' )
-cmds.orientConstraint( 'ctrl_fkElbow', 'fk_elbow_jnt' )
-cmds.orientConstraint( 'ctrl_fkWrist', 'fk_wrist_jnt' )
-
-# Lock and hide ctrl attributes
-cmds.setAttr( 'ctrl_fkWrist.tx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkWrist.ty', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkWrist.tz', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkWrist.sx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkWrist.sy', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkWrist.sz', edit=True,  lock=True, keyable=False, channelBox=False )
-
-cmds.setAttr( 'ctrl_fkElbow.tx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkElbow.ty', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkElbow.tz', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkElbow.sx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkElbow.sy', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkElbow.sz', edit=True,  lock=True, keyable=False, channelBox=False )
-
-cmds.setAttr( 'ctrl_fkShoulder.tx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkShoulder.ty', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkShoulder.tz', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkShoulder.sx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkShoulder.sy', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_fkShoulder.sz', edit=True,  lock=True, keyable=False, channelBox=False )
-
-# Deselect to avoid parenting
-cmds.select(d=True)
-
-# Create bind arm
-# Create bind arm joints
-cmds.joint( n='bn_shoulder_jnt', p=[2.1, 0, 5.0] )
-cmds.joint( n='bn_elbow_jnt', p=[-0.1, 0, 0.0] )
-cmds.joint( n='bn_wrist_jnt', p=[1.0, 0, -5.0] )
-cmds.joint( n='bn_wristEnd_jnt', p=[1.0, 0, -8.0] )
-
-# Orient rig arm joints
-cmds.joint( 'bn_shoulder_jnt', edit=True, zso=True, oj='xyz', sao='yup' )  
-cmds.joint( 'bn_elbow_jnt', edit=True, zso=True, oj='xyz', sao='yup' )
-cmds.joint( 'bn_wrist_jnt', edit=True, zso=True, oj='xyz', sao='yup' )
-cmds.setAttr( 'bn_wristEnd_jnt.jointOrientY', 360 )
-
+# THIS SECTION NEEDS SOME REFINING                       
 # Connect Ik and Fk to bind joints
-cmds.parentConstraint( 'ik_shoulder_jnt', 'bn_shoulder_jnt', weight = 0.0 )
-cmds.parentConstraint( 'fk_shoulder_jnt', 'bn_shoulder_jnt' )
-
-cmds.parentConstraint( 'ik_elbow_jnt', 'bn_elbow_jnt', weight = 0.0 )
-cmds.parentConstraint( 'fk_elbow_jnt', 'bn_elbow_jnt' )
-
-cmds.parentConstraint( 'ik_wrist_jnt', 'bn_wrist_jnt', weight = 0.0 )
-cmds.parentConstraint( 'fk_wrist_jnt', 'bn_wrist_jnt' )
-
-# Deselect to avoid parenting
-cmds.select(d=True)
-
-# Create blend ctrl
-# Get ws position of wrist end joint
-pos = cmds.xform('bn_wristEnd_jnt', q=True, t=True, ws=True)
-
-# Create an empty group
-cmds.group( em=True, name='grp_ctrl_arm' )
-
-# Orient grp to joint
-rot = cmds.xform('bn_wristEnd_jnt', q=True, ro=True, ws=True)
-cmds.xform('grp_ctrl_arm', ro=rot, ws=True)
-
-# Create circle control object
-cmds.circle( n='ctrl_arm', nr=(1, 0, 0), c=(0, 0, 0) )
-
-# Delete history
-cmds.delete( 'ctrl_arm', constructionHistory=True )
-
-# Parent ctrl to group and group to wrist end joint
-cmds.parent('ctrl_arm', 'grp_ctrl_arm')
-cmds.setAttr( "ctrl_arm.rotateY", 0 )
-cmds.setAttr( "ctrl_arm.rotateZ", 90 )
-# Move the group to the joint
-cmds.xform('grp_ctrl_arm', t=pos, ws=True)
-cmds.parent('grp_ctrl_arm', 'bn_wristEnd_jnt')
-
-# Lock and hide ctrl attributes
-cmds.setAttr( 'ctrl_arm.tx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_arm.ty', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_arm.tz', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_arm.rx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_arm.ry', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_arm.rz', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_arm.sx', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_arm.sy', edit=True,  lock=True, keyable=False, channelBox=False )
-cmds.setAttr( 'ctrl_arm.sz', edit=True,  lock=True, keyable=False, channelBox=False )
+cmds.parentConstraint(names['ikPrefix'] + names['shoulder'] + names['jointSufix'], names['bindPrefix'] + names['shoulder'] + names['jointSufix'], weight = 0.0)
+cmds.parentConstraint(names['fkPrefix'] + names['shoulder'] + names['jointSufix'], names['bindPrefix'] + names['shoulder'] + names['jointSufix'])
+cmds.parentConstraint(names['ikPrefix'] + names['elbow'] + names['jointSufix'], names['bindPrefix'] + names['elbow'] + names['jointSufix'], weight = 0.0)
+cmds.parentConstraint(names['fkPrefix'] + names['elbow'] + names['jointSufix'], names['bindPrefix'] + names['elbow'] + names['jointSufix'])
+cmds.parentConstraint(names['ikPrefix'] + names['wrist'] + names['jointSufix'], names['bindPrefix'] + names['wrist'] + names['jointSufix'], weight = 0.0)
+cmds.parentConstraint(names['fkPrefix'] + names['wrist'] + names['jointSufix'], names['bindPrefix'] + names['wrist'] + names['jointSufix'])
 
 # Create blend attribute
-cmds.select( d=True )
-cmds.select( 'ctrl_arm' )
-cmds.addAttr( 'ctrl_arm', ln='FKIKBlend', at='long', min=0, max=10, dv=0 )
-cmds.setAttr( 'ctrl_arm.FKIKBlend', edit=True, keyable=True )
-cmds.setAttr( 'ctrl_arm.FKIKBlend', 0 )
+ctrl_name = names['controlPrefix'] + names['armSufix']
+cmds.select(d=True)
+cmds.select(ctrl_name)
+cmds.addAttr(ctrl_name, ln=names['blendingNode'], at='long', min=0, max=10, dv=0)
+cmds.setAttr(ctrl_name + '.' + names['blendingNode'], edit=True, keyable=True)
+cmds.setAttr(ctrl_name + '.' + names['blendingNode'], 0)
 
 # Create nodes to perform the blend
-cmds.createNode( 'multiplyDivide', n='multDiv_FKIKBlender' )
-cmds.connectAttr( 'ctrl_arm.FKIKBlend', 'multDiv_FKIKBlender.input1X')
-cmds.setAttr( 'multDiv_FKIKBlender.input2X', 10 )
+tmp_multDiv = cmds.createNode('multiplyDivide', n=names['multiplyDividePrefix'] + names['blendingNode'])
+cmds.connectAttr(ctrl_name + '.' + names['blendingNode'], tmp_multDiv + '.input1X')
+cmds.setAttr(tmp_multDiv + '.input2X', 10)
 
-cmds.createNode( 'plusMinusAverage', n='plusMinus_FKIKBlender' )
-cmds.setAttr( 'plusMinus_FKIKBlender.operation', 2 )
-cmds.setAttr( 'plusMinus_FKIKBlender.input1D[0]', 100 )
-cmds.connectAttr( 'multDiv_FKIKBlender.output.outputX', 'plusMinus_FKIKBlender.input1D[1]')
+tmp_plusMinus = cmds.createNode('plusMinusAverage', n=names['plusMinusPrefix'] + names['blendingNode'])
+cmds.setAttr(tmp_plusMinus + '.operation', 2)
+cmds.setAttr(tmp_plusMinus + '.input1D[0]', 100)
+cmds.connectAttr(tmp_multDiv + '.output.outputX', tmp_plusMinus + '.input1D[1]')
 
-cmds.connectAttr( 'multDiv_FKIKBlender.output.outputX', 'bn_shoulder_jnt_parentConstraint1.ik_shoulder_jntW0')
-cmds.connectAttr( 'plusMinus_FKIKBlender.output1D', 'bn_shoulder_jnt_parentConstraint1.fk_shoulder_jntW1')
-
-cmds.connectAttr( 'multDiv_FKIKBlender.outputX', 'bn_elbow_jnt_parentConstraint1.ik_elbow_jntW0')
-cmds.connectAttr( 'plusMinus_FKIKBlender.output1D', 'bn_elbow_jnt_parentConstraint1.fk_elbow_jntW1')
-
-cmds.connectAttr( 'multDiv_FKIKBlender.output.outputX', 'bn_wrist_jnt_parentConstraint1.ik_wrist_jntW0')
-cmds.connectAttr( 'plusMinus_FKIKBlender.output1D', 'bn_wrist_jnt_parentConstraint1.fk_wrist_jntW1')
-
-
-
-
+cmds.connectAttr(tmp_multDiv + '.output.outputX', 'bn_shoulder_jnt_parentConstraint1.ik_shoulder_jntW0')
+cmds.connectAttr(tmp_plusMinus + '.output1D', 'bn_shoulder_jnt_parentConstraint1.fk_shoulder_jntW1')
+cmds.connectAttr(tmp_multDiv + '.outputX', 'bn_elbow_jnt_parentConstraint1.ik_elbow_jntW0')
+cmds.connectAttr(tmp_plusMinus + '.output1D', 'bn_elbow_jnt_parentConstraint1.fk_elbow_jntW1')
+cmds.connectAttr(tmp_multDiv + '.output.outputX', 'bn_wrist_jnt_parentConstraint1.ik_wrist_jntW0')
+cmds.connectAttr(tmp_plusMinus + '.output1D', 'bn_wrist_jnt_parentConstraint1.fk_wrist_jntW1')
