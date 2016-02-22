@@ -66,7 +66,7 @@ cmds.parent( 'ikh_arm', 'ikh_ctrl_arm' )
 #Create control and zero group
 cmds.spaceLocator( name='ctrl_pv_arm')
 cmds.group( 'ctrl_pv_arm', n='grp_ctrl_pv_arm', world=True)
-cmds.xform('grp_ctrl_pv_arm', ws=True,  t=jnt_info[1][1])
+cmds.xform('grp_ctrl_pv_arm', ws=True,  t=(jnt_info[1][1][0], jnt_info[1][1][1], jnt_info[1][1][2]-6.0))
 
 #Apply pole vector contraint
 cmds.poleVectorConstraint( 'ctrl_pv_arm', 'ikh_arm' )
