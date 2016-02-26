@@ -1,5 +1,5 @@
 import maya.cmds as cmds
-import rig.rig_arm_w4B as rig
+import rig.rig_arm_w4 as rig
 
 def rigarm(*args):
 
