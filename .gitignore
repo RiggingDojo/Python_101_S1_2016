@@ -45,3 +45,25 @@ Temporary Items
 # Python
 .pyc
 *.pyc
+
+
+#Maya swatch files
+.swatches
+*.swatches
+
+
+tests/week2_rig_arm.ma
+
+tests/.mayaSwatches/week2_rig_arm.ma.swatches
+
+tests/:Users:Shared:Autodesk:maya:2013:scripts
+
+tests/hello.py
+
+tests/hello.py
+
+tests/hello.py
+
+tests/ik_leg_tutorial.ma
+
+tests/maya_legTutorial.py
