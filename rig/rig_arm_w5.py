@@ -1,25 +1,26 @@
 import maya.cmds as cmds
-
+    
 # ASSIGN NAMES FOR DICTIONARY ITEMS
 dict = {'translation': ['.translateX', '.translateY', '.translateZ'],
-         'rotation': ['.rotateX', '.rotateY', '.rotateZ'],
-         'scale': ['.scaleX', '.scaleY', '.scaleZ'],
-         'prefix': ['ik_', 'fk_', 'rig_'],
-         'group':'grp_',
-         'control': 'ctrl_',
-         'jointSuffix':'_jnt',
-         'pv': 'polev_',
-         'shoulder': 'shoulder',
-         'elbow': 'elbow',
-         'wrist': 'wrist',
-         'wristEnd': 'wristEnd',
-         }
+    'rotation': ['.rotateX', '.rotateY', '.rotateZ'],
+    'scale': ['.scaleX', '.scaleY', '.scaleZ'],
+    'prefix': ['ik_', 'fk_', 'rig_'],
+    'group':'grp_',
+    'control': 'ctrl_',
+    'jointSuffix':'_jnt',
+    'pv': 'polev_',
+    'shoulder': 'shoulder',
+    'elbow': 'elbow',
+    'wrist': 'wrist',
+    'wristEnd': 'wristEnd'
+    }
 
 pos = {'shoulder': [-0.2, 0.0, 8.5],
-       'elbow': [-4.0, 0.0, 0.04],
-       'wrist': [0.15, 0, -4.7],
-       'wristEnd': [-0.07, 0, -7.4]
-       }
+    'elbow': [-4.0, 0.0, 0.04],
+    'wrist': [0.15, 0, -4.7],
+    'wristEnd': [-0.07, 0, -7.4]
+    }
+   
         
 # JOINT INFO
 joint_names = [[dict['shoulder'] + dict['jointSuffix'], pos['shoulder']],
@@ -46,13 +47,24 @@ for var in joint_root:
     joint_dict[var] = tmp_lst
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# CREATE ALL JOINTS AS FUNCTION
+def createJoints():
+    for key, value in joint_dict.iteritems():
+        for i in range(len(value)):
+            cmds.joint(n =value[i][0], p =value[i][1])
+     
+        cmds.select(d = True)
+
+createJoints()
 
 # CREATE ALL JOINTS, CONTROLLERS AND GROUPS
+'''
 for key, value in joint_dict.iteritems():
     for i in range(len(value)):
         cmds.joint(n =value[i][0], p =value[i][1])
  
     cmds.select(d = True)
+'''
 
 # LOOP THROUGH JOINTS AND ORIENT TO XYZ
 for key, value in joint_dict.iteritems():
