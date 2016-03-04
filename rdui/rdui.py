@@ -41,6 +41,19 @@ class RDojo_UI:
 ##############
 
 
+#Creates an arm rig and controls by performing all 
+def rig_arm_full_menu(*args):
+    rig.define_arm_joints(jnt_arm_info, jnt_prefix, jnt_dict)
+    rig.create_joints(jnt_dict, jnt_rot)
+    rig.create_joints(jnt_dict, jnt_rot)
+    rig.make_ik_controls(jnt_arm_info, jnt_dict, jnt_rot)
+    rig.make_fk_controls(jnt_arm_info, jnt_dict, jnt_rot)
+    rig.connect_blend_nodes(jnt_arm_info, jnt_dict)
+
+
+
+
+
 #define which arm joints will be built and where they will be placed. 
 def define_arm_joints_menu(*args):
     rig.define_arm_joints(jnt_arm_info, jnt_prefix, jnt_dict)
@@ -91,14 +104,17 @@ def connect_blend_nodes_menu(*args):
 
 
 
+
+
 #Create menu and menu items for creating arm rig.
 rdojo_menu = cmds.menu( 'RDojo_Menu', label='RD Menu', to=True, p='MayaWindow')
+cmds.menuItem(label='Rig Arm Full', p=rdojo_menu, command=rig_arm_full_menu)
+cmds.menuItem(p=rdojo_menu, divider=True)
 cmds.menuItem(label='Define Arm Joints', p=rdojo_menu, command=define_arm_joints_menu)
 cmds.menuItem(label='Create Arm Joints', p=rdojo_menu, command=create_joints_menu)
 cmds.menuItem(label='Make IK Controls', p=rdojo_menu, command=make_ik_controls_menu)
 cmds.menuItem(label='Make FK Controls', p=rdojo_menu, command=make_fk_controls_menu)
 cmds.menuItem(label='Connect Blend Nodes', p=rdojo_menu, command=connect_blend_nodes_menu)
-
 
 
 
