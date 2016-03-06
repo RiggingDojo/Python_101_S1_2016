@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 import json
-import tempFile
+#import tempFile
 
 def writeJson(fileName, data):
     with open(fileName, 'w') as outfile:
@@ -9,5 +9,5 @@ def writeJson(fileName, data):
 
 def readJson(fileName):
     with open(fileName, 'r') as infile:
-        data = (open(infile., 'r').read())
+        data = (open(infile.name, 'r').read())
     return data
