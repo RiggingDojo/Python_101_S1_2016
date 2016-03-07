@@ -6,31 +6,39 @@ Build a class Rig_Arm with methods
 
 
 import maya.cmds as cmds
+import system.utils as utils
+import json
 
 print 'This is rig_arm'
 
 
 
-#define which arm joints will be built and where they will be placed.
-jnt_arm_info = [['shoulder', [-8.0, 0.0, 0.0]], ['elbow', [0.0, 0.0, -2.0]], 
-       ['wrist', [8.0, 0.0, 0.0]], ['wristEnd',[10.0, 0.0, 0.0]]]
-jnt_prefix = ['ikj_', 'fkj_', 'rigj_']
-jnt_dict = {}
-jnt_rot = []
-
-
+filename = '/Users/AK_Projects/Python101/Python_101_S1_2016/data/rig/arm.json'
 
 class Rig_Arm:
+
+    def __init__(self):
+        data = utils.readJson(filename)
+        info = json.loads(data)
+
+
+        jnt_arm_info = info.rig_data['jnt_arm_info']
+        jnt_prefix = info.rig_data['jnt_prefix']
+
+        jnt_dict = {}
+        jnt_rot = []
+
+
 
 
 
 
     def rig_arm(self):
-        self.define_arm_joints(jnt_arm_info, jnt_prefix, jnt_dict)
-        self.create_joints(jnt_dict, jnt_rot)
-        self.make_ik_controls(jnt_arm_info, jnt_dict, jnt_rot)
-        self.make_fk_controls(jnt_arm_info, jnt_dict, jnt_rot)
-        self.connect_blend_nodes(jnt_arm_info, jnt_dict)
+        self.define_arm_joints(self.jnt_arm_info, self.jnt_prefix, self.jnt_dict)
+        self.create_joints(self.jnt_dict, self.jnt_rot)
+        self.make_ik_controls(self.jnt_arm_info, self.jnt_dict, self.jnt_rot)
+        self.make_fk_controls(self.jnt_arm_info, self.jnt_dict, self.jnt_rot)
+        self.connect_blend_nodes(self.jnt_arm_info, self.jnt_dict)
             
 
 

@@ -13,14 +13,6 @@ arm_obj = rig.Rig_Arm()
 
 
 
-'''
-# The UI class
-class RDojo_UI:
-
-   def __init__(self, *args):
-        print 'In RDojo_UI'
-'''
-
 
 ##############
 # Menu Items #
@@ -37,7 +29,7 @@ def rig_arm_full_menu(*args):
 
 #define which arm joints will be built and where they will be placed. 
 def define_arm_joints_menu(*args):
-    arm_obj.define_arm_joints(rig.jnt_arm_info, rig.jnt_prefix, rig.jnt_dict)
+    arm_obj.define_arm_joints(arm_obj.jnt_arm_info, arm_obj.jnt_prefix, arm_obj.jnt_dict)
 
 
     
@@ -47,7 +39,7 @@ def define_arm_joints_menu(*args):
 
 #Create all joints
 def create_joints_menu(*args):
-    arm_obj.create_joints(rig.jnt_dict, rig.jnt_rot)
+    arm_obj.create_joints(arm_obj.jnt_dict, arm_obj.jnt_rot)
     
 
 
@@ -55,9 +47,9 @@ def create_joints_menu(*args):
 
 
 # ---- IK Controls ----
-# creates ik controls to drive the rotation values of the ik rig joints
+# creates ik controls to drive the rotation values of the ik arm_obj.joints
 def make_ik_controls_menu(*args):
-    arm_obj.make_ik_controls(rig.jnt_arm_info, rig.jnt_dict, rig.jnt_rot)
+    arm_obj.make_ik_controls(arm_obj.jnt_arm_info, arm_obj.jnt_dict, arm_obj.jnt_rot)
 
 
 
@@ -66,9 +58,9 @@ def make_ik_controls_menu(*args):
 
 
 # ---- FK Controls ----
-# creates fk controls to drive the rotation values of the fk rig joints
+# creates fk controls to drive the rotation values of the fk arm_obj.joints
 def make_fk_controls_menu(*args):
-    arm_obj.make_fk_controls(rig.jnt_arm_info, rig.jnt_dict, rig.jnt_rot)
+    arm_obj.make_fk_controls(arm_obj.jnt_arm_info, arm_obj.jnt_dict, arm_obj.jnt_rot)
 
 
 
@@ -76,9 +68,9 @@ def make_fk_controls_menu(*args):
 
 
 # ---- Blend Nodes ----
-# Use the color blend attribute to connect ik and fk rotational values to drive rig joints
+# Use the color blend attribute to connect ik and fk rotational values to drive arm_obj.joints
 def connect_blend_nodes_menu(*args):
-    arm_obj.connect_blend_nodes(rig.jnt_arm_info, rig.jnt_dict)
+    arm_obj.connect_blend_nodes(arm_obj.jnt_arm_info, arm_obj.jnt_dict)
 
 
 
