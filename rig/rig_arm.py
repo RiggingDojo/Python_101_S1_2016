@@ -1,123 +1,112 @@
-''' 
-Arthur Klein 
-Week2
-rig_arm.py
 
-This script builds an arm rig with IK and FK controls and a color blend 
-utility to switch or blend. There is an IK, FK, and RIG bone chain with 
-the IK and FK driving the rotations of the rig bones. 
+'''
+Build a class Rig_Arm with methods 
 
 '''
 
 
 import maya.cmds as cmds
 
+print 'This is rig_arm'
 
 
-#Create all joints
-#Create IK arm joints
-cmds.joint(name='ik_shoulder_jnt', p=(-8, 0, 0))
-cmds.joint(name='ik_elbow_jnt', p=(0, 0, -2))
-cmds.joint(name='ik_wrist_jnt', p=(8, 0, 0))
-cmds.joint(name='ik_wristEnd_jnt', p=(10, 0, 0))
 
-cmds.select('ik_shoulder_jnt')
-cmds.joint( 'ik_shoulder_jnt', e=True, oj='xyz', secondaryAxisOrient='yup', ch=True)
-cmds.select(d=True)
+#define which arm joints will be built and where they will be placed.
+jnt_arm_info = [['shoulder', [-8.0, 0.0, 0.0]], ['elbow', [0.0, 0.0, -2.0]], 
+       ['wrist', [8.0, 0.0, 0.0]], ['wristEnd',[10.0, 0.0, 0.0]]]
+jnt_prefix = ['ikj_', 'fkj_', 'rigj_']
+jnt_dict = {}
+jnt_rot = []
 
 
-#Create FK arm joints
-cmds.joint(name='fk_shoulder_jnt', p=(-8, 0, 0))
-cmds.joint(name='fk_elbow_jnt', p=(0, 0, -2))
-cmds.joint(name='fk_wrist_jnt', p=(8, 0, 0))
-cmds.joint(name='fk_wristEnd_jnt', p=(10, 0, 0))
 
-cmds.select('fk_shoulder_jnt')
-cmds.joint( 'fk_shoulder_jnt', e=True, oj='xyz', secondaryAxisOrient='yup', ch=True)
-cmds.select(d=True)
+class Rig_Arm:
 
 
-#Create rig arm joints
-cmds.joint(name='rig_shoulder_jnt', p=(-8, 0, 0))
-cmds.joint(name='rig_elbow_jnt', p=(0, 0, -2))
-cmds.joint(name='rig_wrist_jnt', p=(8, 0, 0))
-cmds.joint(name='rig_wristEnd_jnt', p=(10, 0, 0))
 
-cmds.select('rig_shoulder_jnt')
-cmds.joint( 'rig_shoulder_jnt', e=True, oj='xyz', secondaryAxisOrient='yup', ch=True)
-cmds.select(d=True)
 
+    def rig_arm(self):
+        self.define_arm_joints(jnt_arm_info, jnt_prefix, jnt_dict)
+        self.create_joints(jnt_dict, jnt_rot)
+        self.make_ik_controls(jnt_arm_info, jnt_dict, jnt_rot)
+        self.make_fk_controls(jnt_arm_info, jnt_dict, jnt_rot)
+        self.connect_blend_nodes(jnt_arm_info, jnt_dict)
+            
 
 
 
+        
 
+    #Creates a dictionary of ik, fk, and rig joint lists 
+    def define_arm_joints(self, jnt_arm_info, jnt_prefix, jnt_dict):
+        for pfx in jnt_prefix:
+            tmp_list = []
+            for jnt in jnt_arm_info:
+                tmp_list.append([pfx + jnt[0], jnt[1]])
+            
+            jnt_dict[pfx] = tmp_list
 
-#Get positions and rotations of all joints and assign to variables
-shoulderPos = cmds.xform('rig_shoulder_jnt', q=True, ws=True, t=True)
-elbowPos = cmds.xform('rig_elbow_jnt', q=True, ws=True, t=True)
-wristPos = cmds.xform('rig_wrist_jnt', q=True, ws=True, t=True)
+        print('Executed define_arm_joints')
 
-shoulderRot = cmds.xform('rig_shoulder_jnt', q=True, ws=True, ro=True)
-elbowRot = cmds.xform('rig_elbow_jnt', q=True, ws=True, ro=True)
-wristRot = cmds.xform('rig_wrist_jnt', q=True, ws=True, ro=True)
 
 
 
 
 
 
-#Create IK Handle
-cmds.ikHandle( name='ikh_arm', sj='ik_shoulder_jnt', ee='ik_wrist_jnt', sol='ikRPsolver')
 
+    #Create all joints
+    def create_joints(self, jnt_dict, jnt_rot):
+        for key, value in jnt_dict.iteritems():
+            for i in range(len(value)):
+                cmds.joint(n = value[i][0], p=value[i][1])
 
 
+            #Orient joints
+            cmds.select( value[0][0] )
+            cmds.joint( value[0][0] , e=True, oj='xyz', sao='yup', ch=True)
+            cmds.select(d=True)
 
-#Create IK Controls and Pole Vector
-#IK wrist control and zero group
-cmds.circle( n='ikh_ctrl_arm', normal=(1, 0, 0), radius=1.5)
-cmds.group('ikh_ctrl_arm', n='grp_ikh_ctrl_arm', world=True)
-cmds.xform('grp_ikh_ctrl_arm', ws=True, t=wristPos, ro=wristRot)
 
-#parent ik handle to ik control shape
-cmds.parent( 'ikh_arm', 'ikh_ctrl_arm' )
+            #Store joint rotation values in jnt_rot list
+            if key == 'rigj_':
+                for y in range(len(value)):
+                    jnt_rot.append(cmds.xform(value[y][0], q=True, ws=True, ro=True))
+        print('joints created')
 
 
+            
 
 
-#Pole Vector
-#Create control and zero group
-cmds.spaceLocator( name='ctrl_pv_arm')
-cmds.group( 'ctrl_pv_arm', n='grp_ctrl_pv_arm', world=True)
-cmds.xform('grp_ctrl_pv_arm', ws=True,  t=(elbowPos[0], elbowPos[1], (elbowPos[2]-6.0)))
 
-#Apply pole vector contraint
-cmds.poleVectorConstraint( 'ctrl_pv_arm', 'ikh_arm' )
 
 
+    # ---- IK Controls ----
+    def make_ik_controls(self, jnt_arm_info, jnt_dict, jnt_rot):
+        #Create IK Handle
+        cmds.ikHandle( name='ikh_arm', sj='ikj_shoulder', ee='ikj_wrist', sol='ikRPsolver')
 
 
+        #IK wrist control and zero group
+        cmds.circle( n='ikh_ctrl_arm', normal=(1, 0, 0), radius=1.5)
+        cmds.group('ikh_ctrl_arm', n='grp_ikh_ctrl_arm', world=True)
+        cmds.xform('grp_ikh_ctrl_arm', ws=True, t=jnt_arm_info[2][1], ro=jnt_rot[2])
 
+        #parent ik handle to ik control shape
+        cmds.parent( 'ikh_arm', 'ikh_ctrl_arm' )
 
-#Create FK Controls
-#Create control shapes and zero groups 
-#Add Loop here:
-cmds.circle( n='fk_ctrl_shoulder', normal=(1, 0, 0))
-cmds.circle( n='fk_ctrl_elbow', normal=(1, 0, 0))
-cmds.circle( n='fk_ctrl_wrist', normal=(1, 0, 0))
 
-cmds.group('fk_ctrl_shoulder', n='grp_fk_ctrl_shoulder', world=True)
-cmds.group('fk_ctrl_elbow', n='grp_fk_ctrl_elbow', world=True)
-cmds.group('fk_ctrl_wrist', n='grp_fk_ctrl_wrist', world=True)
+        #Pole Vector
+        #Create control and zero group
+        cmds.spaceLocator( name='ctrl_pv_arm')
+        cmds.group( 'ctrl_pv_arm', n='grp_ctrl_pv_arm', world=True)
+        cmds.xform('grp_ctrl_pv_arm', ws=True,  t=(jnt_arm_info[1][1][0], jnt_arm_info[1][1][1], jnt_arm_info[1][1][2]-6.0))
 
-cmds.xform('grp_fk_ctrl_shoulder', ws=True, t=shoulderPos, ro=shoulderRot)
-cmds.xform('grp_fk_ctrl_elbow', ws=True, t=elbowPos, ro=elbowRot)
-cmds.xform('grp_fk_ctrl_wrist', ws=True, t=wristPos, ro=wristRot)
+        #Apply pole vector contraint
+        cmds.poleVectorConstraint( 'ctrl_pv_arm', 'ikh_arm' )
 
+        print('IK Controls created')
 
-#Connect rotations of ctrl shapes to rotations of fk bones
-cmds.connectAttr( 'fk_ctrl_shoulder.rotate', 'fk_shoulder_jnt.rotate' )
-cmds.connectAttr( 'fk_ctrl_elbow.rotate', 'fk_elbow_jnt.rotate' )
-cmds.connectAttr( 'fk_ctrl_wrist.rotate', 'fk_wrist_jnt.rotate' )
 
 
 
@@ -125,57 +114,46 @@ cmds.connectAttr( 'fk_ctrl_wrist.rotate', 'fk_wrist_jnt.rotate' )
 
 
 
-#Create IK/FK Blend and attach rotations of ik and fk skeletons to rig skeleton
-cmds.shadingNode('blendColors', asShader=True, n='bldNode_shoulderikfk')
-cmds.shadingNode('blendColors', asShader=True, n='bldNode_elbowikfk')
-cmds.shadingNode('blendColors', asShader=True, n='bldNode_wristikfk')
+    # ---- FK Controls ----
+    def make_fk_controls(self, jnt_arm_info, jnt_dict, jnt_rot):
+        for val in range(len(jnt_dict['fkj_'])-1):
+            temp_name = 'fk_ctrl_' + jnt_arm_info[val][0]
 
+            cmds.circle( n= temp_name, normal=(1, 0, 0))
+            cmds.group(temp_name, n='grp_' + temp_name, world=True)
+            cmds.xform('grp_' + temp_name, ws=True, t=jnt_arm_info[val][1], ro=jnt_rot[val])
+            
+            #connect rotation controls to fk joints
+            cmds.connectAttr(temp_name + '.rotate', jnt_dict['fkj_'][val][0] + '.rotate')
 
-#Connect IK controls to color1
-#Add more loops here:
-cmds.connectAttr( 'ik_shoulder_jnt.rotate', 'bldNode_shoulderikfk.color1', force=True )
-cmds.connectAttr( 'ik_elbow_jnt.rotate', 'bldNode_elbowikfk.color1', force=True )
-cmds.connectAttr( 'ik_wrist_jnt.rotate', 'bldNode_wristikfk.color1', force=True )
+        print('FK controls created')
 
 
-#Connect FK controls to color2
-cmds.connectAttr( 'fk_shoulder_jnt.rotate', 'bldNode_shoulderikfk.color2', force=True )
-cmds.connectAttr( 'fk_elbow_jnt.rotate', 'bldNode_elbowikfk.color2', force=True )
-cmds.connectAttr( 'fk_wrist_jnt.rotate', 'bldNode_wristikfk.color2', force=True )
 
 
 
 
+    # ---- Blend Nodes ----
+    def connect_blend_nodes(self, jnt_arm_info, jnt_dict):
+        arm_bones = ['shoulder', 'elbow', 'wrist']
+        colors = ['R', 'G', 'B']
+        axes = ['X', 'Y', 'Z']
 
 
+        #create blendColor nodes and connect them to the ik and fk control joints
+        for x in range(len(jnt_arm_info)-1):
+            node_name = 'bldNode_' + str(jnt_arm_info[x][0]) + 'ikfk'
+            cmds.shadingNode('blendColors', asShader=True, n= node_name)
+            cmds.connectAttr(jnt_dict['ikj_'][x][0] + '.rotate', node_name + '.color1', force=True)
+            cmds.connectAttr(jnt_dict['fkj_'][x][0] + '.rotate', node_name + '.color2', force=True)
+            cmds.setAttr(node_name + '.blender', 0)
 
-#Loop to connect RGB output of colorblend to rotate XYZ of rig bones 
-arm_bones = ['shoulder', 'elbow', 'wrist']
-colors = ['R', 'G', 'B']
-axes = ['X', 'Y', 'Z']
 
-for bone in arm_bones:
-	for color in colors:
-		for axis in axes:
-			cmds.connectAttr('bldNode_' + bone + 'ikfk.output' + color, 'rig_' + bone + '_jnt.rotate' + axis, force=True)
-					
-
-
-
-#Set all blends to IK by default
-cmds.setAttr('bldNode_shoulderikfk.blender', 0)
-cmds.setAttr('bldNode_elbowikfk.blender', 0)
-cmds.setAttr('bldNode_wristikfk.blender', 0)
-
-
-
-
-
-
-
-
-
-
-
-
+        #Loop to connect RGB output of colorblend to rotate XYZ of rig bones 
+        for bone in arm_bones:
+            for color in colors:
+                for axis in axes:
+                    cmds.connectAttr('bldNode_' + bone + 'ikfk.output' + color, 'rigj_' + bone + '.rotate' + axis, force=True)
+               
+        print('blend nodes created and connected')
 
