@@ -8,9 +8,9 @@ def rigArm():
 	filePos = 'Users/BackboneLabs/Documents/Python_101_S1_2016/layout/default_positions.json'
 	names = json.loads(utils.readJson(fileNames))
 	jntPos = json.loads(utils.readJson(filePos))
-
 	myArm = Arm(jntPos, names)
 	myArm.rigArm()
 
 if __name__ == '__main__':
+	reload(Arm)
 	rigArm()
