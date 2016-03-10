@@ -1,6 +1,6 @@
 
 '''
-Build a class Rig_Arm with methods 
+Build a class Rig_Arm with methods that build the arm individually. The rig_arm method will perform all the 
 
 '''
 
@@ -8,18 +8,38 @@ Build a class Rig_Arm with methods
 import maya.cmds as cmds
 import system.utils as utils
 import json
+import platform 
 
 print 'This is rig_arm'
 
 
 
-filename = '/Users/AK_Projects/Python101/Python_101_S1_2016/data/rig/arm.json'
+
+#Define if the user is using Mac or PC
+if platform.system() == 'Windows':
+    filename = 'C:/Users/arklein/Documents/GitHub/Python_101_S1_2016/data/rig/arm.json'
+else:
+    filename = '/Users/AK_Projects/Python101/Python_101_S1_2016/data/rig/arm.json'
+
+
+
 
 class Rig_Arm:
 
     def __init__(self):
+        
+        #Added print messages in attempt to locate breakage. 
+        print "breaking before utils.readJson"
         data = utils.readJson(filename)
-        info = json.loads(data)
+
+        #breaks here ------------------
+        print "breaking after utils.readJson"
+        
+        info = simplejson.loads(data)
+
+        print "breaking after json.loads(data)"
+
+        print data
 
 
         jnt_arm_info = info.rig_data['jnt_arm_info']
@@ -27,7 +47,6 @@ class Rig_Arm:
 
         jnt_dict = {}
         jnt_rot = []
-
 
 
 
@@ -62,7 +81,6 @@ class Rig_Arm:
 
 
 
-
     #Create all joints
     def create_joints(self, jnt_dict, jnt_rot):
         for key, value in jnt_dict.iteritems():
@@ -80,6 +98,7 @@ class Rig_Arm:
             if key == 'rigj_':
                 for y in range(len(value)):
                     jnt_rot.append(cmds.xform(value[y][0], q=True, ws=True, ro=True))
+
         print('joints created')
 
 
@@ -135,6 +154,7 @@ class Rig_Arm:
             cmds.connectAttr(temp_name + '.rotate', jnt_dict['fkj_'][val][0] + '.rotate')
 
         print('FK controls created')
+
 
 
 
