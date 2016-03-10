@@ -23,13 +23,11 @@ class Arm:
 	def createJointChain(self, jntList):
 		# Create Joints
 		for item in jntList:
-			for i in range(len(item)):
-				cmds.joint(n=item[i][0], p=item[i][1])
+			[cmds.joint(n=item[i][0], p=item[i][1]) for i in range(len(item))]
 			cmds.select(d = True)
 		# Orient joints
 		for item in jntList:
-			for i in range(len(item)):
-				cmds.joint(item[i][0], edit=True, zso=True, oj='xyz', sao='yup')
+			[cmds.joint(item[i][0], edit=True, zso=True, oj='xyz', sao='yup') for i in range(len(item))]
 
 	def createControl(self, jointName):
 		# Get control info
@@ -163,6 +161,7 @@ class Arm:
 				# Rename and parent constraint control and group
 				ctrlName = cmds.rename(ctrlName, self.names['controlPrefix'] + self.names[self.side] + self.names['armSufix'])
 				grpName = cmds.rename(cmds.listRelatives(ctrlName, parent=True), self.names['groupPrefix'] + self.names[self.side] + self.names['armSufix'])
+				cmds.delete(jntName + '_orientConstraint1')
 				cmds.parentConstraint(jntName, grpName)					
 				# Scale control
 				cmds.setAttr(grpName + '.sx', 2)
