@@ -1,9 +1,16 @@
-rig_data = {}
-rig_data["jnt_arm_info"] = [["shoulder", [-8.0, 0.0, 0.0]], ["elbow", [0.0, 0.0, -2.0]], ["wrist", [8.0, 0.0, 0.0]], ["wristEnd",[10.0, 0.0, 0.0]]]
-rig_data["jnt_prefix"] = ["ikj_", "fkj_", "rigj_"]
-rig_data["ik_controls"] = []
-rig_data["fk_controls"] = []
- 
-from system.utils import writeJson
-filename = 'C:/Users/arklein/Documents/GitHub/Python_101_S1_2016/data/rig/arm.json'
-writeJson(filename, rig_data)
+{
+	"fk_controls": [], 
+
+	"jnt_arm_info": 
+	[
+		["shoulder", [-8.0, 0.0, 0.0]], 
+		["elbow", [0.0, 0.0, -2.0]], 
+		["wrist", [8.0, 0.0, 0.0]], 
+		["wristEnd", [10.0, 0.0, 0.0]]
+	], 
+
+	"jnt_prefix": 
+		["ikj_", "fkj_", "rigj_"],
+
+	"ik_controls": []
+}

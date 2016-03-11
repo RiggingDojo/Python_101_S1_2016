@@ -17,9 +17,9 @@ print 'This is rig_arm'
 
 #Define if the user is using Mac or PC
 if platform.system() == 'Windows':
-    filename = 'C:/Users/arklein/Documents/GitHub/Python_101_S1_2016/data/rig/arm.json'
+    fileName = 'C:/Users/arklein/Documents/GitHub/Python_101_S1_2016/data/rig/arm.json'
 else:
-    filename = '/Users/AK_Projects/Python101/Python_101_S1_2016/data/rig/arm.json'
+    fileName = '/Users/AK_Projects/Python101/Python_101_S1_2016/data/rig/arm.json'
 
 
 
@@ -27,26 +27,19 @@ else:
 class Rig_Arm:
 
     def __init__(self):
-        
-        #Added print messages in attempt to locate breakage. 
-        print "breaking before utils.readJson"
+        global fileName
+
         data = utils.readJson(fileName)
-
-        
-        print "breaking after utils.readJson"
-        #breaks here ------------------
         info = json.loads(data)
-
-        print "breaking after json.loads(data)"
-
         print data
 
+        self.jnt_arm_info = info['jnt_arm_info']
+        self.jnt_prefix = info['jnt_prefix']
 
-        jnt_arm_info = info.rig_data['jnt_arm_info']
-        jnt_prefix = info.rig_data['jnt_prefix']
+        self.jnt_dict = {}
+        self.jnt_rot = []
 
-        jnt_dict = {}
-        jnt_rot = []
+
 
 
 
