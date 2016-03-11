@@ -30,12 +30,12 @@ class Rig_Arm:
         
         #Added print messages in attempt to locate breakage. 
         print "breaking before utils.readJson"
-        data = utils.readJson(filename)
+        data = utils.readJson(fileName)
 
-        #breaks here ------------------
-        print "breaking after utils.readJson"
         
-        info = simplejson.loads(data)
+        print "breaking after utils.readJson"
+        #breaks here ------------------
+        info = json.loads(data)
 
         print "breaking after json.loads(data)"
 

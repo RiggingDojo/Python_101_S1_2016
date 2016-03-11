@@ -1,5 +1,5 @@
 import maya.cmds as cmds
-import simplejson as json
+import json
 
 
 
