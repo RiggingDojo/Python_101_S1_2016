@@ -4,7 +4,8 @@ import os
 import system.utils as utils
 
 class Rig_Arm:
-	
+	'''creates instance of arm, default is right arm'''
+
 	def __init__( self ):
 		# Get our joint lists from a json file.
 		data_path = os.environ["RDOJO_DATA"] + 'rig/arm.json'
@@ -29,7 +30,7 @@ class Rig_Arm:
 		for i in sel:
 			cmds.joint(i, edit=True, zeroScaleOrient=True, orientJoint="xyz", secondaryAxisOrient="yup", children=True)
 
-	def calculatePVPosition( jnts ):
+	def calculatePVPosition( self, jnts ):
 		#Calculates the Position of jnts
 		from maya import cmds, OpenMaya
 		start = cmds.xform( jnts[0], q=True, ws=True, t=True )
