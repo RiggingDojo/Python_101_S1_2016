@@ -3,6 +3,17 @@ import json
 import os
 import system.utils as utils
 
+
+rig_data = {}
+rig_data[ 'ikjnts' ] = [ 'ik_shoulder_jnt', 'ik_elbow_jnt', 'ik_wrist_jnt', 'ik_wristEnd_jnt' ]
+rig_data[ 'fkjnts' ] =  [ 'fk_shoulder_jnt', 'fk_elbow_jnt', 'fk_wrist_jnt', 'fk_wristEnd_jnt' ]
+rig_data[ 'rigjnt' ] = [ 'ik_shoulder_jnt', 'ik_elbow_jnt', 'ik_wrist_jnt', 'ik_wristEnd_jnt' ]
+rig_data[ 'bindjnts' ] = [ 'bind_shoulder_jnt', 'bind_elbow_jnt', 'bind_wrist_jnt', 'bind_wristEnd_jnt' ]
+rig_data[ 'ikcontrols' ] = [ 'ctrl_ik_arm, ikh_arm', 'ctrl_pv_arm']
+rig_data[ 'fkcontrols' ] = [ 'ctrl_fk_shoulder', 'ctrl_fk_elbow', 'ctrl_fk_wrist' ]
+rig_data[ 'positions' ] = [[0.0, 0.0, 0.0], [-1.0, 0.0, 2.0], [0.0, 0.0, 4.0], [0.0, 0.0, 6.0] ]
+
+
 class Rig_Arm:
 	'''creates instance of arm, default is right arm'''
 
