@@ -8,33 +8,26 @@ Build a class Rig_Arm with methods that build the arm individually. The rig_arm 
 import maya.cmds as cmds
 import system.utils as utils
 import json
-import platform 
+import os
 
 print 'This is rig_arm'
 
 
 
-
-#Define if the user is using Mac or PC
-if platform.system() == 'Windows':
-    fileName = 'C:/Users/arklein/Documents/GitHub/Python_101_S1_2016/data/rig/arm.json'
-else:
-    fileName = '/Users/AK_Projects/Python101/Python_101_S1_2016/data/rig/arm.json'
-
+data_path = os.environ["RD_DATA"] + 'rig/arm.json'
+print data_path
 
 
 
 class Rig_Arm:
 
     def __init__(self):
-        global fileName
+        global data_path
+ 
+        self.module_info = json.loads(utils.readJson(data_path))
 
-        data = utils.readJson(fileName)
-        info = json.loads(data)
-        print data
-
-        self.jnt_arm_info = info['jnt_arm_info']
-        self.jnt_prefix = info['jnt_prefix']
+        self.jnt_arm_info = self.module_info['jnt_arm_info']
+        self.jnt_prefix = self.module_info['jnt_prefix']
 
         self.jnt_dict = {}
         self.jnt_rot = []
@@ -58,7 +51,7 @@ class Rig_Arm:
         
 
     #Creates a dictionary of ik, fk, and rig joint lists 
-    def define_arm_joints(self, jnt_arm_info, jnt_prefix, jnt_dict):
+    def define_joints(self, jnt_arm_info, jnt_prefix, jnt_dict):
         for pfx in jnt_prefix:
             tmp_list = []
             for jnt in jnt_arm_info:
