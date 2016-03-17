@@ -6,6 +6,9 @@ This window has buttons to rig an arm and eventually other tools.
 
 import maya.cmds as cmds
 import rig.rig_arm as rig
+import system.utils as utils
+reload(utils)
+reload(rig)
 
 print "This is RDUI\n"
 
@@ -26,6 +29,7 @@ class RDojo_UI:
         #Create menu and menu items for creating arm rig.
         mi = cmds.window('MayaWindow', q=True, ma=True)
 
+        #Delete existing menu
         for m in mi:
             if m == 'RDojo_Menu':
                 cmds.deleteUI('RDojo_Menu', m=True)
@@ -33,7 +37,7 @@ class RDojo_UI:
 
 
         rdojo_menu = cmds.menu( 'RDojo_Menu', label='RD Menu', to=True, p='MayaWindow')
-        cmds.menutItem(label='Rig Tool', p=rdojo_menu, command=self.ui)
+        cmds.menuItem(label='Rig Tool', p=rdojo_menu, command=self.ui)
         
 
         '''Dictionary to store layouts, buttons, etc.'''
@@ -47,13 +51,14 @@ class RDojo_UI:
 
     def ui(self, *args):
         '''Check if the UI exists'''
+        print('This is RDojo_UI.ui')
         window_name = 'window'
         if cmds.window(window_name, exists=True):
             cmds.deleteUI(window_name)
 
         '''define dimensions of window and buttons'''
-        window_width = 480
-        window_height = 80
+        window_width = 320
+        window_height = 480
         button_width = 100
         button_height = 30
 
@@ -61,21 +66,29 @@ class RDojo_UI:
 
         self.UIElements['mainColLayout'] = cmds.columnLayout( adjustableColumn=True )
         self.UIElements['guiFrameLayout1'] = cmds.frameLayout( label='Layout', borderStyle='out', p=self.UIElements['mainColLayout'] )
-        self.UIElements['guiFlowLayout1'] = cmds.flowLayout( v=False, width=window_width, height=window_height/2, wr=True, bgc=[0.2, 0.2, 0.2], p=UIElements['guiFrameLayout1'])
- 
-        cmds.separator(width=10, hr=True, st='none', p=self.UIElements['guiFlowLayout1'])
+        self.UIElements['guiFlowLayout1'] = cmds.flowLayout( v=False, width=window_width, height=window_height/2, wr=True, bgc=[0.2, 0.2, 0.2], p=self.UIElements['guiFrameLayout1'])
+        self.UIElements['rowColumnLayout1'] = cmds.rowColumnLayout( numberOfColumns=3, columnAlign=(1, 'right'), columnAttach=(2, 'both', 0), columnWidth=(2, 150) )
 
-        self.UIElements['rig_button'] = cmds.button(label='rig_arm', width=button_width, height=button_height, bgc=[0.2, 0.4, 0.2], p=self.UIElements['guiFlowLayout1'], command=self.rig_arm_full_button)
+        self.UIElements['rig_button'] = cmds.button(label='rig_arm', width=button_width, height=button_height, bgc=[0.2, 0.4, 0.2], p=self.UIElements['rowColumnLayout1'], command=self.rig_arm_full_button)
+        self.UIElements['invisbutton1'] = cmds.button(width=button_width, height=button_height, p=self.UIElements['rowColumnLayout1'], visible=False)
+        self.UIElements['invisbutton2'] = cmds.button(width=button_width, height=button_height, p=self.UIElements['rowColumnLayout1'], visible=False)
+
+        #cmds.separator( width=400, style='in' )
+
+        self.UIElements['invisbutton1']
+        self.UIElements['invisbutton1'] 
+        self.UIElements['invisbutton1']  
+
+
+        self.UIElements['define_joints'] = cmds.button(label='Define Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.define_joints_button)
+        self.UIElements['create_arm_joints'] = cmds.button(label='Create Arm Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.create_joints_button)
+        self.UIElements['make_ik_controls'] = cmds.button(label='Make IK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.make_ik_controls_button)
+        self.UIElements['make_fk_controls'] = cmds.button(label='Make FK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.make_fk_controls_button)
+        self.UIElements['connect_blend_nodes'] = cmds.button(label='Blend Nodes', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.connect_blend_nodes_button)
+
         
-        cmds.separator(width=10, hr=True, st='none', p=self.UIElements['guiFlowLayout1'])
-
-        self.UIElements['define_joints'] = cmds.button(label='Define Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.define_joints_button)
-        self.UIElements['create_arm_joints'] = cmds.button(label='Create Arm Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.create_joints_button)
-        self.UIElements['make_ik_controls'] = cmds.button(label='Make IK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.make_ik_controls_button)
-        self.UIElements['make_fk_controls'] = cmds.button(label='Make FK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.make_fk_controls_button)
-        self.UIElements['connect_blend_nodes'] = cmds.button(label='Connect Blend Nodes', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.connect_blend_nodes_button)
-
-
+        '''Show the window'''
+        cmds.showWindow(window_name)
 
 
 

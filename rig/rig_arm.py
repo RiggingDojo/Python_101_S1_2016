@@ -39,7 +39,7 @@ class Rig_Arm:
 
 
     def rig_arm(self):
-        self.define_arm_joints(self.jnt_arm_info, self.jnt_prefix, self.jnt_dict)
+        self.define_joints(self.jnt_arm_info, self.jnt_prefix, self.jnt_dict)
         self.create_joints(self.jnt_dict, self.jnt_rot)
         self.make_ik_controls(self.jnt_arm_info, self.jnt_dict, self.jnt_rot)
         self.make_fk_controls(self.jnt_arm_info, self.jnt_dict, self.jnt_rot)
