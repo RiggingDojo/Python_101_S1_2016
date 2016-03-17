@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 
-print ("UI")
+print ("This is UI")
 
 def rigarm(*args):
 	print "Rig_Arm"
