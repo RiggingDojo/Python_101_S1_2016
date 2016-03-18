@@ -11,7 +11,7 @@ cmds.currentUnit( time='ntsc' )
 cmds.currentUnit( linear='cm' )
 
 # set a system path to data files. WE can do this with the os modulke
-os.environ["RDOJO_DATA"] = 'C:/Users/blam/Documents/GitHub/Python_101_S1_2016/data'
+os.environ["RDOJO_DATA"] = 'C:/Users/blam/Documents/GitHub/Python_101_S1_2016/data/'
 
 #import  ui from ui folder
 import ui.ui as ui
