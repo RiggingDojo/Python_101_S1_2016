@@ -61,32 +61,32 @@ class RDojo_UI:
         window_height = 480
         button_width = 100
         button_height = 30
+        field_width = 200
 
         self.UIElements['window'] = cmds.window(window_name, width=window_width, height=window_height, title='RDojo_UI', rtf=True)
 
         self.UIElements['mainColLayout'] = cmds.columnLayout( adjustableColumn=True )
         self.UIElements['guiFrameLayout1'] = cmds.frameLayout( label='Layout', borderStyle='out', p=self.UIElements['mainColLayout'] )
         self.UIElements['guiFlowLayout1'] = cmds.flowLayout( v=False, width=window_width, height=window_height/2, wr=True, bgc=[0.2, 0.2, 0.2], p=self.UIElements['guiFrameLayout1'])
-        self.UIElements['rowColumnLayout1'] = cmds.rowColumnLayout( numberOfColumns=3, columnAlign=(1, 'right'), columnAttach=(2, 'both', 0), columnWidth=(2, 150) )
+        #self.UIElements['rowColumnLayout1'] = cmds.rowColumnLayout( numberOfColumns=3, columnAlign=(1, 'right'), columnAttach=(2, 'both', 0), columnWidth=(2, 150) )
 
-        self.UIElements['rig_button'] = cmds.button(label='rig_arm', width=button_width, height=button_height, bgc=[0.2, 0.4, 0.2], p=self.UIElements['rowColumnLayout1'], command=self.rig_arm_full_button)
-        self.UIElements['invisbutton1'] = cmds.button(width=button_width, height=button_height, p=self.UIElements['rowColumnLayout1'], visible=False)
-        self.UIElements['invisbutton2'] = cmds.button(width=button_width, height=button_height, p=self.UIElements['rowColumnLayout1'], visible=False)
-
-        #cmds.separator( width=400, style='in' )
-
-        self.UIElements['invisbutton1']
-        self.UIElements['invisbutton1'] 
-        self.UIElements['invisbutton1']  
+        self.UIElements['joint1_label'] = cmds.text( label='Joint1 Name', p=self.UIElements['guiFlowLayout1'])
+        self.UIElements['enter_name'] = cmds.textField( width=field_width, p=self.UIElements['guiFlowLayout1'])
 
 
-        self.UIElements['define_joints'] = cmds.button(label='Define Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.define_joints_button)
-        self.UIElements['create_arm_joints'] = cmds.button(label='Create Arm Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.create_joints_button)
-        self.UIElements['make_ik_controls'] = cmds.button(label='Make IK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.make_ik_controls_button)
-        self.UIElements['make_fk_controls'] = cmds.button(label='Make FK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.make_fk_controls_button)
-        self.UIElements['connect_blend_nodes'] = cmds.button(label='Blend Nodes', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.connect_blend_nodes_button)
+        self.UIElements['rig_button'] = cmds.button(label='rig_arm', width=button_width, height=button_height, bgc=[0.2, 0.4, 0.2], p=self.UIElements['guiFlowLayout1'], command=self.rig_arm_full_button)
+        self.UIElements['invisbutton1'] = cmds.button(width=button_width, height=button_height, p=self.UIElements['guiFlowLayout1'], visible=False)
+        self.UIElements['invisbutton1'] = cmds.button(width=button_width, height=button_height, p=self.UIElements['guiFlowLayout1'], visible=False)
 
+        self.UIElements['define_joints'] = cmds.button(label='Define Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.define_joints_button)
+        self.UIElements['create_arm_joints'] = cmds.button(label='Create Arm Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.create_joints_button)
+        self.UIElements['make_ik_controls'] = cmds.button(label='Make IK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.make_ik_controls_button)
         
+        self.UIElements['make_fk_controls'] = cmds.button(label='Make FK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.make_fk_controls_button)
+        self.UIElements['connect_blend_nodes'] = cmds.button(label='Blend Nodes', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['guiFlowLayout1'], command=self.connect_blend_nodes_button)
+        self.UIElements['invisbutton1'] = cmds.button(width=button_width, height=button_height, p=self.UIElements['guiFlowLayout1'], visible=False)
+        
+
         '''Show the window'''
         cmds.showWindow(window_name)
 
@@ -149,5 +149,12 @@ class RDojo_UI:
 
 
 
+    def text_entry(*args):
+        '''text field that takes the joint name information'''
+        cmds.text( label='Joint 1:' )
+        self.name_joint = cmds.textField()
+        '''text field that takes the joint placement - 3 floats separated by commas'''
+        '''assign values in fields to class variables'''
 
+        '''function that holds two functions 1)text_entry 2)writeJson '''
 
