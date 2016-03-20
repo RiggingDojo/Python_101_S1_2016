@@ -1,12 +1,7 @@
 import maya.cmds as cmds
 import rig.rig_arm_w5 as rig
-'''
-def rigarm(*args):
-	rig.rigArm()	
-	
-myMenu = cmds.menu('RDojo_Menu', label='RDMenu', to=True, p='MayaWindow')
-cmds.menuItem(label='Rig Arm', p=myMenu, command=rigarm)
-'''
+
+
 class RDojo_UI:
 
 	def __init__(self, *args):
@@ -32,19 +27,40 @@ class RDojo_UI:
 		buttonWidth = 100
 		buttonHeight = 30
 
-		self.UIElements['window'] = cmds.window(windowName, width=windowWidth, height=windowHeight, title='RDojo_UI', sizeable=True)
-		self.UIElements['mainColLayout'] = cmds.columnLayout(adjustableColumn=True)
-		self.UIElements['guiFrameLayout1'] = cmds.frameLayout(label='Layout', borderStyle='in', p=self.UIElements['mainColLayout'])
-		self.UIElements['guiFlowLayout1'] = cmds.flowLayout(v=False, width=windowWidth, height=windowHeight/2, wr=True, bgc=[0.2, 0.2, 0.2], p=self.UIElements['guiFrameLayout1'])
-
+		self.UIElements['window'] = cmds.window(
+												windowName,
+												w=windowWidth,
+												h=windowHeight,
+												t='RDojo_UI',
+												s=True
+												)
+		self.UIElements['mainColLayout'] = cmds.columnLayout(adj=True)
+		self.UIElements['guiFrameLayout1'] = cmds.frameLayout(
+															l='Layout',
+															bs='in',
+															p=self.UIElements['mainColLayout']
+															)
+		self.UIElements['guiFlowLayout1'] = cmds.flowLayout(
+															v=False,
+															w=windowWidth,
+															h=windowHeight/2,
+															wr=True,
+															bgc=[0.2, 0.2, 0.2],
+															p=self.UIElements['guiFrameLayout1']
+															)
 		# Menu listing all the layout files
 		cmds.separator(w=10, hr=True, st='none', p=self.UIElements['guiFlowLayout1'])
-		self.UIElements['rig_button'] = cmds.button(label='rig_arm', width=buttonWidth, height=buttonHeight, bgc=[0.2, 0.4, 0.2], p=self.UIElements['guiFlowLayout1'], c=self.rigarm)
+		self.UIElements['rig_button'] = cmds.button(
+													l='rig_arm',
+													w=buttonWidth,
+													h=buttonHeight,
+													bgc=[0.2, 0.4, 0.2],
+													p=self.UIElements['guiFlowLayout1'],
+													c=self.rigarm
+													)
 
 		# Show the Window
 		cmds.showWindow(windowName)
 
 	def rigarm(*args):
 		rig.rigArm()
-
-
