@@ -43,6 +43,7 @@ class RDojo_UI:
 		cmds.showWindow( windowName )
 
 	def rigarm( *args ):
+		'''rig arm function'''
 		#print "Rig_Arm"
 		import rig.rig_arm_classes as rig_arm
 		reload( rig_arm )

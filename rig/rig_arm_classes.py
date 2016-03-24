@@ -13,6 +13,7 @@ class Rig_Arm:
 		data = utils.readJson( data_path )
 		# Load the json in a dictionary
 		self.module_info = json.loads( data )
+		# left side of the arm
 		side = 'L'
 
 	def rig_arm( self ):
