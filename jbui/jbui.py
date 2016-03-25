@@ -1,5 +1,6 @@
 import maya.cmds as cmds
-import rig.rig_arm_w5 as rig
+import os
+from functools import partial
 
 
 class RDojo_UI:
@@ -15,6 +16,11 @@ class RDojo_UI:
 
 		# Dictionary to store UI elements
 		self.UIElements = {}
+
+		# Dictionary to store the rig folder modules
+		self.rigModList = []
+		rigContents = os.listdir(os.environ['RDOJO_RIG'])
+		[self.rigModList.append(mod) for mod in rigContents if ('.pyc' not in mod) and ('__init__' not in mod) and ('.DS_Store' not in mod) and ('Limb' not in mod)]
 
 	def ui(self, *args):
 		# Check to see if UI exists
@@ -47,20 +53,25 @@ class RDojo_UI:
 															wr=True,
 															bgc=[0.2, 0.2, 0.2],
 															p=self.UIElements['guiFrameLayout1']
-															)
-		# Menu listing all the layout files
-		cmds.separator(w=10, hr=True, st='none', p=self.UIElements['guiFlowLayout1'])
-		self.UIElements['rig_button'] = cmds.button(
-													l='rig_arm',
+														)
+		# Dynamically make a button for each rigging module
+		for mod in self.rigModList:
+			buttonName = mod.replace('.py', '')
+			cmds.separator(w=10, hr=True, st='none', p=self.UIElements['guiFlowLayout1'])
+			self.UIElements[buttonName] = cmds.button(
+													l=buttonName,
 													w=buttonWidth,
 													h=buttonHeight,
 													bgc=[0.2, 0.4, 0.2],
 													p=self.UIElements['guiFlowLayout1'],
-													c=self.rigarm
+													c=partial(self.rigMod, buttonName)
 													)
-
 		# Show the Window
 		cmds.showWindow(windowName)
 
-	def rigarm(*args):
-		rig.rigArm()
+	def rigMod(self, modFile, *args):
+		mod = __import__('rig.' + modFile, {}, {}, [modFile])
+		reload(mod)
+		# Read attributes from the class module and instanstiate class
+		moduleClass = getattr(mod, mod.className)
+		moduleClass()

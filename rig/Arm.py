@@ -2,14 +2,47 @@ import maya.cmds as cmds
 import system.utils as utils
 from rig.Limb import Limb as Limb
 
+className = 'Arm'
+
 
 class Arm(Limb):
+	'''
+	A class for rigging an arm
+
+	Attributes:
+		className: The name of the class for external reference
+		nddJnts: The number of joints that needs to be selected for the arm being rigged
+	'''
+	nddJnts = 4
 
 	def __init__(self):
 		'''
 		Init function that just calls parent class initializer
 		'''
 		Limb.__init__(self)
+		self.nddJnts = Arm.nddJnts
+		if (len(cmds.ls(sl=True)) == self.nddJnts):
+			self.getLayoutPos(cmds.ls(sl=True))
+			self.rigArm()
+		else:
+			cmds.confirmDialog(t='Warning!', m='Please select the 4 bones of the arm.', b='OK', db='OK')
+
+	def getLayoutPos(self, jntList):
+		'''
+		Function that acquires the positions of the bones of the layout object and adds them
+		to the data dictionary, replacing the default positions
+
+		param jntList: The list with the bones of the layout object
+		type jntList: list
+		'''
+		# Get position of the selected joints and then delete them
+		jntPosList = []
+		jntPosList = [cmds.xform(jnt, q=True, ws=True, t=True) for jnt in jntList]
+		cmds.delete()
+		# Replace default positions in the dictionary for the new ones
+		for key, value in self.jntInfo.iteritems():
+			for i in range(len(value)):
+				value[i][1] = jntPosList[i]
 
 	def rigArm(self):
 		'''
@@ -25,10 +58,9 @@ class Arm(Limb):
 					if 'End' not in value[i][0]:
 						# Create and align control and group
 						ctrlName = utils.createControl(value[i][0], self.names)
-						if ctrlName:
-							# Lock and hide ctrl attributes
-							tmpAttrList = ('.tx', '.ty', '.tz', '.sx', '.sy', '.sz')
-							utils.lockAndHide(tmpAttrList, ctrlName)
+						# Lock and hide ctrl attributes
+						tmpAttrList = ('.tx', '.ty', '.tz', '.sx', '.sy', '.sz')
+						utils.lockAndHide(tmpAttrList, ctrlName)
 				# Parent controls
 				cmds.parent(
 							self.names['groupPrefix'] +

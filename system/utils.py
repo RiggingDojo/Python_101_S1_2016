@@ -48,6 +48,8 @@ def createJointChain(jntList):
 	:param jntList: A list with the data for all the joints
 	:type jntList: list
 	"""
+	# Deselect everything for the joint command to work properly
+	cmds.select(d=True)
 	# Create Joints
 	for item in jntList:
 		[cmds.joint(n=item[i][0], p=item[i][1]) for i in range(len(item))]
@@ -79,7 +81,9 @@ def createControl(jntName, names):
 	cmds.circle(n=ctrlName, nr=(1, 0, 0), c=(0, 0, 0))
 	cmds.delete(ctrlName, constructionHistory=True)
 	cmds.parent(ctrlName, grpName)
+	cmds.setAttr(ctrlName + '.rotateX', 0)
 	cmds.setAttr(ctrlName + '.rotateY', 0)
+	cmds.setAttr(ctrlName + '.rotateZ', 0)
 	cmds.xform(grpName, t=grpPos, ws=True)
 	cmds.orientConstraint(ctrlName, jntName)
 	return ctrlName
