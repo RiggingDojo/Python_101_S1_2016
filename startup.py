@@ -12,8 +12,11 @@ cmds.currentUnit( time='ntsc' )
 cmds.currentUnit( linear='cm' )
 
 # Set a system path to files.  We can do this with the os module
-os.environ["RDOJO_DATA"] = 'C:/Users/Griffy/Documents/GitHub/Python_101_S1_2016/'
+os.environ["RDOJO_DATA"] = 'C:/Users/Griffy/Documents/GitHub/Python_101_S2_2015/'
+
 
 import ui.ui as ui
 reload(ui)
 ui.RDojo_UI()
+
+utils.setupMatchScripts()

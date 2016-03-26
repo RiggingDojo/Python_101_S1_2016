@@ -11,8 +11,7 @@ lytfile = 'arm.json'
 numjnts = 4
 
 class Rig_Arm:
-    def __init__(self, uiinfo):
-        print uiinfo
+    def __init__(self):
         # Get our joint lists from a json file.
         print os.environ["RDOJO_DATA"]
         data_path = os.environ["RDOJO_DATA"] + 'data/rig/arm.json'
@@ -43,13 +42,13 @@ class Rig_Arm:
         """ What if we want a left and a right arm?  For now we will set
         a temporary variable to override the name, but later we will build
         this into the UI """
-        self.instance = uiinfo[0]
+        self.instance = '_L_'
 
         # Run rig_arm function
-        self.install()
+        self.rig_arm()
 
 
-    def install(self):
+    def rig_arm(self):
         cmds.select(d=True)
         # Create Ik joints
         self.rig_info['ikjnts']=utils.createJoint(self.module_info['ikjnts'], self.rig_info['positions'], self.instance)
@@ -60,7 +59,7 @@ class Rig_Arm:
         # Create Rig joints
         self.rig_info['rigjnts']=utils.createJoint(self.module_info['rigjnts'], self.rig_info['positions'], self.instance)
         
-    
+
         # Create Ik Rig
         # Ik handle
         #"ikcontrols": ["ctrl_ik_arm, ikh_arm", "ctrl_pv_arm"
@@ -68,15 +67,14 @@ class Rig_Arm:
         ikhname = self.module_info["ikcontrols"][1].replace('_s_', self.instance)
         self.rig_info['ikh']=cmds.ikHandle(n=ikhname, sj=self.rig_info['ikjnts'][0], ee=self.rig_info['ikjnts'][2], sol='ikRPsolver', p=2, w=1 )
 
-        ikctrlname = self.module_info["ikcontrols"][0].replace('_s_', self.instance)
-        self.rig_info['ikcontrol']=utils.createControl([[self.rig_info['positions'][2], ikctrlname, 'HandControl.ma']])[0]
+        self.rig_info['ikcontrol']=utils.createControl([[self.rig_info['positions'][2], self.module_info["ikcontrols"][0]]])[0]
 
         pvpos = utils.calculatePVPosition([self.rig_info['ikjnts'][0], self.rig_info['ikjnts'][1], self.rig_info['ikjnts'][2]])
 
-        self.rig_info['pvcontrol']=utils.createControl([[pvpos, self.module_info["ikcontrols"][2], 'RectangleControl.ma']])[0]
+        self.rig_info['pvcontrol']=utils.createControl([[pvpos, self.module_info["ikcontrols"][2]]])[0]
 
         # Make a control for arm settings
-        self.rig_info['setcontrol']=utils.createControl([[self.rig_info['positions'][2], 'ctrl_settings', 'RectangleControl.ma']])[0]
+        self.rig_info['setcontrol']=utils.createControl([[self.rig_info['positions'][2], 'ctrl_settings']])[0]
         cmds.addAttr(self.rig_info['setcontrol'][1], ln='IK_FK', at="enum", en="fk:ik:", k=True )
 
         # Parent ikh to ctrl
@@ -89,9 +87,9 @@ class Rig_Arm:
         cmds.orientConstraint(self.rig_info['ikcontrol'][1], self.rig_info['ikjnts'][2], mo=True)
 
         # Create FK rig   
-        self.rig_info['fkcontrols'] = utils.createControl([[self.rig_info['positions'][0], self.module_info["fkcontrols"][0], 'RectangleControl.ma'],
-        [self.rig_info['positions'][1], self.module_info["fkcontrols"][1], 'RectangleControl.ma'],
-        [self.rig_info['positions'][2], self.module_info["fkcontrols"][2], 'RectangleControl.ma']])
+        self.rig_info['fkcontrols'] = utils.createControl([[self.rig_info['positions'][0], self.module_info["fkcontrols"][0]],
+        [self.rig_info['positions'][1], self.module_info["fkcontrols"][1]],
+        [self.rig_info['positions'][2], self.module_info["fkcontrols"][2]]])
 
         # Parent fk controls      
         cmds.parent(self.rig_info['fkcontrols'][2][0], self.rig_info['fkcontrols'][1][1])
@@ -102,12 +100,9 @@ class Rig_Arm:
         utils.connectThroughBC(self.rig_info['ikjnts'], self.rig_info['fkjnts'], self.rig_info['rigjnts'], self.instance, switchattr )
   
         # Constrain fk joints to controls.
-        [cmds.parentConstraint(self.rig_info['fkcontrols'][i][1], self.rig_info['fkjnts'][i], mo=True) for i in range(len(self.rig_info['fkcontrols']))]
+        [cmds.parentConstraint(self.rig_info['fkcontrols'][i][1], self.rig_info['fkjnts'][i]) for i in range(len(self.rig_info['fkcontrols']))]
 
-        # SetupIk/Fk match scriptJob
-        """
-        switchAttr=(self.rig_info['setcontrol'][1]+".IK_FK")
-        cmds.scriptJob( runOnce=False, per=True, attributeChange=[switchAttr, utils.match_ikfk] )
-        #matchNodeName = cmds.scriptNode( st=1, bs='print "doStuff"', n='script', stp='python')
-        print cmds.scriptJob( listJobs=True )
-        """
+
+
+
+

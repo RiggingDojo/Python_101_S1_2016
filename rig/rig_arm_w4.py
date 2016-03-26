@@ -9,6 +9,19 @@ def createJoint(jntinfo):
 	for item in jntinfo:
 		cmds.joint(n=item[0], p=item[1])
 
+def createControl(ctrlinfo):
+	# Create ik control
+	# Get ws position of wrist joint
+	pos = ctrlinfo[0]
+	# Create an empty group
+	ctrlgrp = cmds.group( em=True, name=ctrlinfo[1] )
+	# Create circle control object
+	ctrl = cmds.circle( n=ctrlinfo[2], nr=(0, 0, 1), c=(0, 0, 0) )
+	# Parent the control to the group
+	cmds.parent(ctrl, ctrlgrp)
+	# Move the group to the joint
+	cmds.xform(ctrlgrp, t=pos, ws=True)
+
 # Create Ik joints
 createJoint(ikjnt_list)
 cmds.select(d=True)
@@ -24,21 +37,16 @@ cmds.select(d=True)
 # Ik handle
 cmds.ikHandle( n='ikh_arm', sj='ik_shoulder_jnt', ee='ik_wrist_jnt', sol='ikRPsolver', p=2, w=1 )
 
-# Create ik control
-# Get ws position of wrist joint
-pos = cmds.xform('ik_wrist_jnt', q=True, t=True, ws=True)
-# Create an empty group
-cmds.group( em=True, name='grp_ctrl_ikWrist' )
-# Create circle control object
-cmds.circle( n='ctrl_ikWrist', nr=(0, 0, 1), c=(0, 0, 0) )
-# Parent the control to the group
-cmds.parent('ctrl_ikWrist', 'grp_ctrl_ikWrist')
-# Move the group to the joint
-cmds.xform('grp_ctrl_ikWrist', t=pos, ws=True)
+ikctrlinfo = [[ikjnt_list[2][1], 'ctrl_ik_arm', 'grp_ctrl_ik_arm']]
+createControl()
+
 # Parent ikh to ctrl
-cmds.parent('ikh_arm', 'ctrl_ikWrist')
+cmds.parent('ikh_arm', 'ctrl_ik_arm')
 
 # Create FK rig
+fkctrlinfo = [[fkjnt_list[0][1], 'ctrl_fk_shoulder', 'grp_ctrl_fk_shoulder'],
+[fkjnt_list[1][1], 'ctrl_fk_elbow', 'grp_ctrl_fk_elbow'],
+[fkjnt_list[2][1], 'ctrl_fk_wrist', 'grp_ctrl_fk_wrist']]
 
 
 # Connect Ik and Fk to Rig joints

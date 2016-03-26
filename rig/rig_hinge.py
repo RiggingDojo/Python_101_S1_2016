@@ -6,16 +6,15 @@ reload(utils)
 
 # We can use variables above the class level that can be read on class import
 # This is also known as an attribute of a class
-classname = 'Rig_Arm'
-lytfile = 'arm.json'
+classname = 'Rig_Hinge'
+#lytfile = 'hinge.json'
 numjnts = 4
 
-class Rig_Arm:
-    def __init__(self, uiinfo):
-        print uiinfo
+class Rig_Hinge:
+    def __init__(self, *args):
         # Get our joint lists from a json file.
         print os.environ["RDOJO_DATA"]
-        data_path = os.environ["RDOJO_DATA"] + 'data/rig/arm.json'
+        data_path = os.environ["RDOJO_DATA"] + 'data/rig/hinge.json'
         # Use our readJson function
         data = utils.readJson(data_path)
         # Load the json into a dictionary

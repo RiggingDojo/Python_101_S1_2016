@@ -15,7 +15,7 @@ class RDojo_UI:
                 cmds.deleteUI('RDojo_Menu', m=True)
 
         mymenu = cmds.menu('RDojo_Menu', label='RDMenu', to=True, p='MayaWindow')
-        cmds.menuItem(label='Rig Arm', parent=mymenu, command=self.ui)
+        cmds.menuItem(label='Rig Tool', parent=mymenu, command=self.ui)
 
         """ Create a dictionary to store UI elements.
         This will allow us to access these elements later. """
@@ -29,7 +29,7 @@ class RDojo_UI:
                 self.rigmodlst.append(mod)
 
         # An empty list to store information collected from the ui.
-        self.uiinfo = []
+        self.uiinfo = [] 
 
     def ui(self, *args):
         """ Check to see if the UI exists """
@@ -54,7 +54,40 @@ class RDojo_UI:
         # Dynamically make a menu item for each rigging module.
         for mod in self.rigmodlst:
             itemname = mod.replace('.py', '')    
-            #cmds.menuItem(label=itemname, p=self.UIElements["rigMenu"], c=partial(self.rigmod, itemname))
+            cmds.menuItem(label=itemname, p=self.UIElements["rigMenu"], c=partial(self.rigmod, itemname))
 
- 
-  
+        cmds.separator(w=10, hr=True, st='none', p=self.UIElements["guiFlowLayout1"])
+        # Make a menu for left, right and center sides.
+        # We will query the value later.
+        sides = ['_L_', '_R_', '_C_']
+        self.UIElements["sideMenu"] = cmds.optionMenu('Side', label='side', p=self.UIElements["guiFlowLayout1"]) 
+        for s in sides:
+            cmds.menuItem(label=s, p=self.UIElements["sideMenu"])    
+
+        # Make a button to run the rig script
+        modfile = cmds.optionMenu(self.UIElements["rigMenu"], q=True, v=True) 
+        cmds.separator(w=10, hr=True, st='none', p=self.UIElements["guiFlowLayout1"])
+        self.UIElements["rigbutton"] = cmds.button(label="Rig", width=buttonWidth, height=buttonHeight, bgc=[0.2, 0.4, 0.2], p=self.UIElements["guiFlowLayout1"], c=partial(self.rigmod, modfile))
+        
+        # IK_FK match button
+        self.UIElements["ikfkmatchbutton"] = cmds.button(label="Match", width=buttonWidth, height=buttonHeight, bgc=[0.2, 0.4, 0.2], p=self.UIElements["guiFlowLayout1"], c=utils.match_ikfk)
+
+        """ Show the window"""
+        cmds.showWindow(windowName)
+
+
+        
+    def rigmod(self, modfile, *args):
+        """__import__ basically opens a module and reads some info from it 
+            without actually loading the module in memory."""
+        mod = __import__("rig."+modfile, {}, {}, [modfile])
+        reload(mod)
+
+        sideval = cmds.optionMenu(self.UIElements["sideMenu"], q=True, v=True) 
+        self.uiinfo.append([sideval, modfile]) 
+
+        # getattr will get an attribute from a class
+        moduleClass = getattr(mod, mod.classname)
+        moduleInstance = moduleClass(self.uiinfo[0])
+
+
