@@ -5,7 +5,7 @@ import os
 
 def writeJson(fileName, data):
     with open(fileName, 'w') as outfile:
-        json.dump(data, outfile)
+        json.dump(data, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
     file.close(outfile)
 
 def readJson(fileName):
