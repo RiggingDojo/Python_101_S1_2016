@@ -3,28 +3,15 @@ import json
 import os
 import system.utils as utils
 
-'''
-ikjnt_list = [['ik_shoulder_jnt', [2.1, 0.0, 5.0]], ['ik_elbow_jnt', [-0.1, 0.0, 0.0]], ['ik_wrist_jnt', [-0.1, 0.0, -5.0]], ['ik_wristEnd_jnt',[1.0, 0.0, -8.0]]]
-fkjnt_list = [['fk_shoulder_jnt', [2.1, 0.0, 5.0]], ['fk_elbow_jnt', [-0.1, 0.0, 0.0]], ['fk_wrist_jnt', [-0.1, 0.0, -5.0]], ['fk_wristEnd_jnt',[1.0, 0.0, -8.0]]]
-rigjnt_list = [['rig_shoulder_jnt', [2.1, 0.0, 5.0]], ['rig_elbow_jnt', [-0.1, 0.0, 0.0]], ['rig_wrist_jnt', [-0.1, 0.0, -5.0]], ['rig_wristEnd_jnt',[1.0, 0.0, -8.0]]]
 
-
-#rig_data = {}
-rig_data['ikjnts'] = ['ik_shoulder_jnt', 'ik_elbow_jnt', 'ik_wrist_jnt','ik_wristEnd_jnt' ]
-rig_data['fkjnts'] = ['fk_shoulder_jnt', 'fk_elbow_jnt', 'fk_wrist_jnt', 'fk_wristEnd_jnt' ]
-rig_data['rigjnt'] = ['rig_shoulder_jnt', 'rig_elbow_jnt', 'rig_wrist_jnt', 'rig_wristEnd_jnt' ]
-rig_data['bindjnts'] = ['bind_shoulder_jnt', 'bind_elbow_jnt', 'bind_wrist_jnt', 'bind_wristEnd_jnt' ]
-rig_data['ikcontrols'] = ['ctrl_ik_arm, ikh_arm', 'ctrl_pv_arm']
-rig_data['fkcontrols'] = ['ctrl_fk_shoulder', 'ctrl_fk_elbow', 'ctrl_fk_wrist']
-rig_data['positions'] = [[2.1, 0.0, 5.0],[-0.1, 0.0, 0.0],[-0.1, 0.0, -5.0],[1.0, 0.0, -8.0]]
-'''
 
 class Rig_Arm:
 	'''creates instance of arm, default is right arm'''
 
 	def __init__( self ):
 		# Get our joint lists from a json file.
-		data_path = os.environ["RDOJO_DATA"] + 'rig/arm.json'
+		#data_path = os.environ["RDOJO_DATA"] + 'rig/arm.json'
+		data_path = "C:/Users/Bears/Documents/GitHub/Python_101_S1_2016/data/" + 'rig/arm.json'
 		# Use our readJson function
 		data = utils.readJson( data_path )
 		# Load the json in a dictionary
@@ -40,7 +27,7 @@ class Rig_Arm:
 		self.createJoint( self.module_info['fkjnts'] )
 		cmds.select( d=True )
 		# Create Rig joints
-		self.createJoint( self.moduel_info['rigjnts'] )
+		self.createJoint( self.moduel_info['rigjnt'] )
 		cmds.select( d=True )		
 
 

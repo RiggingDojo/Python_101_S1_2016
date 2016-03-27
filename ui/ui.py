@@ -34,8 +34,8 @@ class RDojo_UI:
 		self.UIElements["window"] = cmds.window ( windowName, width=windowWidth, height=windowHeight, title="RDojo_UI", sizeable=True )
 		
 		self.UIElements["mainColLayout"] =  cmds.columnLayout( adjustableColumn=True )
-		self.UIElements["guiFramelayout1"] = cmds.framelayout( label='Layout', borderStyle='in', p=self.UIElements["mainColLayout"])
-		self.UIElements["guiFlowLayout1"] = cmdsself.flowLayout( v=False, width=windowWidth, height=windowHeight/2, wr=True, bgc=[0.2, 0.2, 0.2], p=self.UIElements["guiFramelayout1"])
+		self.UIElements["guiFramelayout1"] = cmds.frameLayout( label='Layout', borderStyle='in', p=self.UIElements["mainColLayout"])
+		self.UIElements["guiFlowLayout1"] = cmds.flowLayout( v=False, width=windowWidth, height=windowHeight/2, wr=True, bgc=[0.2, 0.2, 0.2], p=self.UIElements["guiFramelayout1"])
 
 		# Menu listing all the layout files
 		cmds.separator(  w=10, hr=True, st='none', p=self.UIElements["guiFlowLayout1"])
@@ -44,7 +44,7 @@ class RDojo_UI:
 		""" Show the window """
 		cmds.showWindow( windowName )
 
-	def rigarm( *args ):
+	def rigarm( self, *args ):
 		'''rig arm function'''
 		#print "Rig_Arm"
 		import rig.rig_arm_classes as rig_arm
