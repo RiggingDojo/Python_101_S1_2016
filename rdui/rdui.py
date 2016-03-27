@@ -78,7 +78,6 @@ class RDojo_UI:
 
         self.UIElements['joint1_xvalue'] = cmds.intFieldGrp( numberOfFields=3, value1=0, value2=0, value3=0, p=self.UIElements['guiFlowLayout1'])
         #self.UIElements['separator'] = cmds.separator( h=10, style='none')
-        #self.UIElements['separator'] = cmds.separator( h=10, style='none')
 
         cmds.separator( h=10, style='none')
         cmds.separator( h=10, style='none')
@@ -101,11 +100,12 @@ class RDojo_UI:
         self.UIElements['separator'] = cmds.separator( h=10, style='none')
         
         self.UIElements['json_filename'] = cmds.textFieldGrp( label='Json Filename: ', text='enter filename', p=self.UIElements['guiFlowLayout1'])
-        self.UIElements['writeJson_field'] = cmds.textFieldGrp( label='Json Filename: ', text='enter data', p=self.UIElements['guiFlowLayout1'])
+        self.UIElements['writeJson_field'] = cmds.textFieldGrp( label='Json Data: ', text='enter data', p=self.UIElements['guiFlowLayout1'])
         self.UIElements['separator'] = cmds.separator( h=10, style='none')
 
-        self.UIElements['writeJson_button'] = cmds.button( 'writeJson_button', command=partial(utils.writeJson, os.environ["RD_DATA"] + 'rig/' + self.UIElements['json_filename'], self.UIElements['writeJson_field']), p=self.UIElements['guiFlowLayout1'])
+        self.UIElements['writeJson_button'] = cmds.button( 'writeJson_button', command=partial(utils.writeJson, os.environ["RD_DATA"] + 'rig/' + self.UIElements['json_filename'] + '.json', self.UIElements['writeJson_field']), p=self.UIElements['guiFlowLayout1'])
         #self.UIElements['writeJson_button'] = cmds.button( command=utils.writeJson(self.UIElements['json_filename'], self.UIElements['writeJson_field']))
+        self.UIElements['writeJson_button2'] = cmds.textFieldButtonGrp( label='Keep the change: ', text='PLACEHOLDER - Replace other writeJson fields', buttonLabel='test print', buttonCommand=self.print_textField, p=self.UIElements['guiFlowLayout1'] )
 
         '''Show the window'''
         cmds.showWindow(window_name)
@@ -171,10 +171,17 @@ class RDojo_UI:
 
     def text_entry(*args):
         '''text field that takes the joint name information'''
+        '''incomplete'''
         cmds.text( label='Joint 1:' )
         self.name_joint = cmds.textField()
         '''text field that takes the joint placement - 3 floats separated by commas'''
         '''assign values in fields to class variables'''
 
         '''function that holds two functions 1)text_entry 2)writeJson '''
+
+
+
+    def print_textField(self, *args):
+        print(cmds.textFieldButtonGrp(self.UIElements['writeJson_button2'], q=True, text=True))
+
 
