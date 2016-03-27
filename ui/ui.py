@@ -51,7 +51,7 @@ class RDojo_UI:
 		reload( rig_arm )
 		#create instance for class
 		rig_arm = rig_arm.Rig_Arm()
-		rig_arm.rig_arm
+		rig_arm.rig_arm()
 
 
 '''

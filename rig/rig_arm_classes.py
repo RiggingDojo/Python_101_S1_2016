@@ -10,14 +10,17 @@ class Rig_Arm:
 
 	def __init__( self ):
 		# Get our joint lists from a json file.
-		#data_path = os.environ["RDOJO_DATA"] + 'rig/arm.json'
-		data_path = "C:/Users/Bears/Documents/GitHub/Python_101_S1_2016/data/" + 'rig/arm.json'
+		data_path = os.environ["RDOJO_DATA"] + 'rig/arm.json'
+		#data_path = "C:/Users/Bears/Documents/GitHub/Python_101_S1_2016/data/" + 'rig/arm.json'
 		# Use our readJson function
 		data = utils.readJson( data_path )
 		# Load the json in a dictionary
 		self.module_info = json.loads( data )
-		# left side of the arm
-		side = 'L'
+		# stores data to be modified
+		self.rig_info = {}
+
+
+
 
 	def rig_arm( self ):
 		# Create Ik joints, passing in keys
@@ -27,14 +30,14 @@ class Rig_Arm:
 		self.createJoint( self.module_info['fkjnts'] )
 		cmds.select( d=True )
 		# Create Rig joints
-		self.createJoint( self.moduel_info['rigjnt'] )
+		self.createJoint( self.module_info['rigjnt'] )
 		cmds.select( d=True )		
 
 
 		# Create Ik Rig
 		# Ik handle
 		#  "ikcontrols" : ["ctrl_ik_arm, ikh_arm", "ctrl_pv_arm"]
-		ikh = cmds.ikHandle( n=self.module_info["ikcontrols"][1], sj=self.module_info['ikjnts'][0], ee=self.module_info['ikjnts'][2], solf='ikRPsolver', p=2, w=1)
+		ikh = cmds.ikHandle( n=self.module_info["ikcontrols"][1], sj=self.module_info['ikjnts'][0], ee=self.module_info['ikjnts'][2], sol='ikRPsolver', p=2, w=1)
 		
 		self.createControl( [[self.module_info['positions'][2], self.module_info["ikcontrols"][0]]] )
 
