@@ -3,6 +3,22 @@ import json
 import os
 import system.utils as utils
 
+'''
+ikjnt_list = [['ik_shoulder_jnt', [2.1, 0.0, 5.0]], ['ik_elbow_jnt', [-0.1, 0.0, 0.0]], ['ik_wrist_jnt', [-0.1, 0.0, -5.0]], ['ik_wristEnd_jnt',[1.0, 0.0, -8.0]]]
+fkjnt_list = [['fk_shoulder_jnt', [2.1, 0.0, 5.0]], ['fk_elbow_jnt', [-0.1, 0.0, 0.0]], ['fk_wrist_jnt', [-0.1, 0.0, -5.0]], ['fk_wristEnd_jnt',[1.0, 0.0, -8.0]]]
+rigjnt_list = [['rig_shoulder_jnt', [2.1, 0.0, 5.0]], ['rig_elbow_jnt', [-0.1, 0.0, 0.0]], ['rig_wrist_jnt', [-0.1, 0.0, -5.0]], ['rig_wristEnd_jnt',[1.0, 0.0, -8.0]]]
+
+
+#rig_data = {}
+rig_data['ikjnts'] = ['ik_shoulder_jnt', 'ik_elbow_jnt', 'ik_wrist_jnt','ik_wristEnd_jnt' ]
+rig_data['fkjnts'] = ['fk_shoulder_jnt', 'fk_elbow_jnt', 'fk_wrist_jnt', 'fk_wristEnd_jnt' ]
+rig_data['rigjnt'] = ['rig_shoulder_jnt', 'rig_elbow_jnt', 'rig_wrist_jnt', 'rig_wristEnd_jnt' ]
+rig_data['bindjnts'] = ['bind_shoulder_jnt', 'bind_elbow_jnt', 'bind_wrist_jnt', 'bind_wristEnd_jnt' ]
+rig_data['ikcontrols'] = ['ctrl_ik_arm, ikh_arm', 'ctrl_pv_arm']
+rig_data['fkcontrols'] = ['ctrl_fk_shoulder', 'ctrl_fk_elbow', 'ctrl_fk_wrist']
+rig_data['positions'] = [[2.1, 0.0, 5.0],[-0.1, 0.0, 0.0],[-0.1, 0.0, -5.0],[1.0, 0.0, -8.0]]
+'''
+
 class Rig_Arm:
 	'''creates instance of arm, default is right arm'''
 
@@ -59,20 +75,36 @@ class Rig_Arm:
 		cmds.parent( fkctrlinfo[0][0], fkctrlinfo[1][1][0] )
 		cmds.parent( fkctrlinfo[1][0], fkctrlinfo[2][1][0] )
 
+		# Create Rig jnts by parenting FK and IK to Rig jnts
+		pass
 
-	'''	
-	def orient_joints( self, jnts ):
-		for i in jnts:
-			cmds.joint(i, edit=True, zeroScaleOrient=True, orientJoint="xyz", secondaryAxisOrient="yup", children=True)
-	'''
+
 
 	def createJoint( self, jntinfo ):
 		for i in range(len( jntinfo )):
 			cmds.joint( n=jntinfo[i], p=self.module_info['positions'][i] )
+		#orient joints
+		for i in range(len( jntinfo )):
+			cmds.joint(jntinfo[i], edit=True, zeroScaleOrient=True, orientJoint="xyz", secondaryAxisOrient="yup", children=True)
+
+	def createControl( self, ctrlinfo ):
+		for info in ctrlinfo:
+			# Create ik control
+			# get ws position of wrist joint
+			pos = info[0]
+			# create an empty group
+			ctrlgrp = cmds.group( em=True, name=info[2] )
+			# Create circle control object
+			ctrl = cmds.circle( n=info[1], nr=(0, 0, 1), c=(0, 0, 0) )
+			# Parent the control to the group
+			cmds.parent( ctrl, ctrlgrp )
+			# Move the group to the joint
+			cmds.xform( ctrlgrp, t=pos, ws=True ) 
+
 
 
 	def calculatePVPosition( self, jnts ):
-		#Calculates the Position of jnts
+		#Calculates the pole vector of jnts
 		from maya import cmds, OpenMaya
 		start = cmds.xform( jnts[0], q=True, ws=True, t=True )
 		mid = cmds.xform( jnts[1], q=True, ws=True, t=True )

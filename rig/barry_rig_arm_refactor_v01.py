@@ -5,7 +5,11 @@ To Send Code to Maya, ctrl-shift-p, and then ctrl-enter
 '''
 
 
-joint_info = [['shoulder_jnt', [2.1, 0.0, 5.0]], ['elbow_jnt', [-0.1, 0.0, 0.0]], ['wrist_jnt', [-0.1, 0.0, -5.0]], ['wristEnd_jnt',[1.0, 0.0, -8.0]]]
+ikjnt_list = [['ik_shoulder_jnt', [2.1, 0.0, 5.0]], ['ik_elbow_jnt', [-0.1, 0.0, 0.0]], ['ik_wrist_jnt', [-0.1, 0.0, -5.0]], ['ik_wristEnd_jnt',[1.0, 0.0, -8.0]]]
+fkjnt_list = [['fk_shoulder_jnt', [2.1, 0.0, 5.0]], ['fk_elbow_jnt', [-0.1, 0.0, 0.0]], ['fk_wrist_jnt', [-0.1, 0.0, -5.0]], ['fk_wristEnd_jnt',[1.0, 0.0, -8.0]]]
+rigjnt_list = [['rig_shoulder_jnt', [2.1, 0.0, 5.0]], ['rig_elbow_jnt', [-0.1, 0.0, 0.0]], ['rig_wrist_jnt', [-0.1, 0.0, -5.0]], ['rig_wristEnd_jnt',[1.0, 0.0, -8.0]]]
+
+
 
 #Creating Empty Dictionary
 joint_dict = {}
