@@ -15,7 +15,8 @@ class Layout_Arm(Limb):
 		'''
 		Init function that just calls parent class initializer
 		'''
-		Limb.__init__(self)
+		side = 'right'
+		Limb.__init__(self, side)
 		self.layoutArm()
 
 	def layoutArm(self):

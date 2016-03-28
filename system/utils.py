@@ -99,3 +99,24 @@ def lockAndHide(attrList, controlName):
 	:type controlName: string
 	"""
 	[cmds.setAttr(controlName + attr, e=True, l=True, k=False, cb=False) for attr in attrList]
+
+
+def mirrorJointChain(joint, axis, names):
+	"""
+	A function that mirrors a joint chain based in the passed axis. Returns the mirrored chain
+
+	:param joint: The first joint of the chain to be mirrored
+	:param axis: The axis to perform the mirror on
+	:type joint: string
+	:type axis: string
+	:rtype mirrorJntList: list
+	"""
+	mirrorJntList = []
+	# Get the selected axis and return the mirrored chain depending on the axis
+	if axis == 'xy':
+		mirrorJntList = cmds.mirrorJoint(joint, mirrorXY=True, mirrorBehavior=True, searchReplace=('R', 'L'))
+	elif axis == 'yz':
+		mirrorJntList = cmds.mirrorJoint(joint, mirrorYZ=True, mirrorBehavior=True, searchReplace=('R', 'L'))
+	elif axis == 'xz':
+		mirrorJntList = cmds.mirrorJoint(joint, mirrorXZ=True, mirrorBehavior=True, searchReplace=('R', 'L'))
+	return mirrorJntList

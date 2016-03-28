@@ -12,14 +12,24 @@ class Arm(Limb):
 	Attributes:
 		className: The name of the class for external reference
 		nddJnts: The number of joints that needs to be selected for the arm being rigged
+		args: Optional argument to indicate side in the case arm is a mirrored arm
 	'''
 	nddJnts = 4
 
-	def __init__(self):
+	def __init__(self, *args):
 		'''
-		Init function that just calls parent class initializer
+		Init function that calls the parent class initializer and calls the rig arm function
+		in the case we have all the needed joints selected. When an Arm is created from the menu,
+		it's always a right arm, when it's mirrored, a parameter indicating side is passed with
+		the constructor.
 		'''
-		Limb.__init__(self)
+		# Get the side if the arm
+		if not args:
+			self.side = 'right'
+		else:
+			self.side = args[0]
+		# Call parent's class initializer
+		Limb.__init__(self, self.side)
 		self.nddJnts = Arm.nddJnts
 		if (len(cmds.ls(sl=True)) == self.nddJnts):
 			self.getLayoutPos(cmds.ls(sl=True))

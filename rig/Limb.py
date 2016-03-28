@@ -9,7 +9,7 @@ class Limb:
 	'''
 	A class for creating rig sections such as legs, arms
 	'''
-	def __init__(self):
+	def __init__(self, side):
 		'''
 		Initializes the class with its necessary attributes
 
@@ -24,7 +24,7 @@ class Limb:
 		fileNames = os.environ['RDOJO_DATA'] + 'default_labels.json'
 		filePos = os.environ['RDOJO_DATA'] + 'default_positions.json'
 		# Initialize attributes
-		self.side = 'right'
+		self.side = side
 		self.jntPos = json.loads(utils.readJson(filePos))
 		self.names = json.loads(utils.readJson(fileNames))
 		self.jntChains = (
@@ -147,13 +147,13 @@ class Limb:
 		# Create nodes to perform the blend
 		multDivNode = cmds.createNode(
 									'multiplyDivide',
-									n=(self.names['multiplyDividePrefix'] + self.names['blendingNode'])
+									n=(self.names['multiplyDividePrefix'] + self.names[self.side] + self.names['blendingNode'])
 									)
 		cmds.connectAttr(ctrlName + '.' + self.names['blendingNode'], multDivNode + '.input1X')
 		cmds.setAttr(multDivNode + '.input2X', 10)
 		plusMinusNode = cmds.createNode(
 									'plusMinusAverage',
-									n=(self.names['plusMinusPrefix'] + self.names['blendingNode'])
+									n=(self.names['plusMinusPrefix'] + self.names[self.side] + self.names['blendingNode'])
 									)
 		cmds.setAttr(plusMinusNode + '.operation', 2)
 		cmds.setAttr(plusMinusNode + '.input1D[0]', 100)
