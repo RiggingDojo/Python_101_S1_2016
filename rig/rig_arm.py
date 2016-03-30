@@ -51,7 +51,7 @@ class Rig_Arm:
         
 
     #Creates a dictionary of ik, fk, and rig joint lists 
-    def define_joints(self, jnt_arm_info, jnt_prefix, jnt_dict):
+    def define_joints(self, jnt_arm_info, jnt_prefix, jnt_dict, *args):
         for pfx in jnt_prefix:
             tmp_list = []
             for jnt in jnt_arm_info:
@@ -59,7 +59,7 @@ class Rig_Arm:
             
             jnt_dict[pfx] = tmp_list
 
-        print('Executed define_arm_joints')
+        print('IK, FK, and rig joint lists defined.')
 
 
 
@@ -68,7 +68,7 @@ class Rig_Arm:
 
 
     #Create all joints
-    def create_joints(self, jnt_dict, jnt_rot):
+    def create_joints(self, jnt_dict, jnt_rot, *args):
         for key, value in jnt_dict.iteritems():
             for i in range(len(value)):
                 cmds.joint(n = value[i][0], p=value[i][1])
@@ -95,7 +95,7 @@ class Rig_Arm:
 
 
     # ---- IK Controls ----
-    def make_ik_controls(self, jnt_arm_info, jnt_dict, jnt_rot):
+    def make_ik_controls(self, jnt_arm_info, jnt_dict, jnt_rot, *args):
         #Create IK Handle
         cmds.ikHandle( name='ikh_arm', sj='ikj_shoulder', ee='ikj_wrist', sol='ikRPsolver')
 
@@ -128,7 +128,7 @@ class Rig_Arm:
 
 
     # ---- FK Controls ----
-    def make_fk_controls(self, jnt_arm_info, jnt_dict, jnt_rot):
+    def make_fk_controls(self, jnt_arm_info, jnt_dict, jnt_rot, *args):
         for val in range(len(jnt_dict['fkj_'])-1):
             temp_name = 'fk_ctrl_' + jnt_arm_info[val][0]
 
@@ -148,7 +148,7 @@ class Rig_Arm:
 
 
     # ---- Blend Nodes ----
-    def connect_blend_nodes(self, jnt_arm_info, jnt_dict):
+    def connect_blend_nodes(self, jnt_arm_info, jnt_dict, *args):
         arm_bones = ['shoulder', 'elbow', 'wrist']
         colors = ['R', 'G', 'B']
         axes = ['X', 'Y', 'Z']

@@ -59,7 +59,7 @@ class RDojo_UI:
             cmds.deleteUI(window_name)
 
         '''define dimensions of window and buttons'''
-        window_width = 350
+        window_width = 360
         window_height = 480
         button_width = 50
         button_height = 30
@@ -69,8 +69,8 @@ class RDojo_UI:
 
         self.UIElements['mainColLayout'] = cmds.columnLayout( adjustableColumn=True )
         self.UIElements['guiFrameLayout1'] = cmds.frameLayout( label='Layout', borderStyle='out', p=self.UIElements['mainColLayout'] )
-        self.UIElements['guiFlowLayout1'] = cmds.flowLayout( v=False, width=window_width, height=window_height/2, wr=True, bgc=[0.2, 0.2, 0.2], p=self.UIElements['guiFrameLayout1'])
-        self.UIElements['rowColumnLayout1'] = cmds.rowColumnLayout( numberOfColumns=3, columnAlign=[ (1, 'right'), (2, 'right'), (3, 'right')], columnWidth=[(1, 100), (2, 150), (3, 100)] )
+        self.UIElements['guiFlowLayout1'] = cmds.flowLayout( v=False, width=window_width, height=window_height/2, wr=True, p=self.UIElements['guiFrameLayout1'])
+        self.UIElements['rowColumnLayout1'] = cmds.rowColumnLayout( numberOfColumns=3, columnAlign=[ (1, 'left'), (2, 'right'), (3, 'right')], columnWidth=[(1, 120), (2, 120), (3, 120)], p=self.UIElements['mainColLayout'] )
 
         self.UIElements['joint1_label'] = cmds.text( label='Joint1 Name', p=self.UIElements['rowColumnLayout1'])
         self.UIElements['enter_name'] = cmds.textField( width=field_width, p=self.UIElements['rowColumnLayout1'])
@@ -83,20 +83,26 @@ class RDojo_UI:
         cmds.separator( h=10, style='none')
         cmds.separator( h=10, style='none')
 
-        self.UIElements['rig_button'] = cmds.button(label='rig_arm', width=button_width, height=button_height, bgc=[0.2, 0.4, 0.2], p=self.UIElements['rowColumnLayout1'], command=self.rig_arm_full_button)
-        cmds.separator( h=10, style='none')
-        cmds.separator( h=10, style='none')
+        self.UIElements['rig_button'] = cmds.button(label='Rig Whole Arm', width=button_width, height=button_height, bgc=[0.2, 0.4, 0.2], p=self.UIElements['rowColumnLayout1'], command=self.rig_arm_full_button)
+        for i in range(2):
+            cmds.separator( h=10, style='none')
 
-        cmds.separator( h=10, style='none')
-        cmds.separator( h=10, style='none')
-        cmds.separator( h=10, style='none')
+        for i in range(3):
+            cmds.separator( h=10, style='none')
 
-        self.UIElements['define_joints'] = cmds.button(label='Define Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.define_joints_button)
-        self.UIElements['create_arm_joints'] = cmds.button(label='Create Arm Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.create_joints_button)
-        self.UIElements['make_ik_controls'] = cmds.button(label='Make IK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.make_ik_controls_button)
+        cmds.text( label='Separate functions: ', p=self.UIElements['rowColumnLayout1'])
+        for i in range(2):
+            cmds.separator( h=10, style='none')
+
+
+        #cmdsself.create_separators(3)
+
+        self.UIElements['define_joints'] = cmds.button(label='Define Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=partial(arm_obj.define_joints, arm_obj.jnt_arm_info, arm_obj.jnt_prefix, arm_obj.jnt_dict))
+        self.UIElements['create_arm_joints'] = cmds.button(label='Create Arm Joints', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=partial(arm_obj.create_joints, arm_obj.jnt_dict, arm_obj.jnt_rot))
+        self.UIElements['make_ik_controls'] = cmds.button(label='Make IK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=partial(arm_obj.make_ik_controls, arm_obj.jnt_arm_info, arm_obj.jnt_dict, arm_obj.jnt_rot))
         
-        self.UIElements['make_fk_controls'] = cmds.button(label='Make FK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.make_fk_controls_button)
-        self.UIElements['connect_blend_nodes'] = cmds.button(label='Blend Nodes', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=self.connect_blend_nodes_button)
+        self.UIElements['make_fk_controls'] = cmds.button(label='Make FK Controls', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=partial(arm_obj.make_fk_controls, arm_obj.jnt_arm_info, arm_obj.jnt_dict, arm_obj.jnt_rot))
+        self.UIElements['connect_blend_nodes'] = cmds.button(label='Blend Nodes', width=button_width, height=button_height, bgc=[0.2, 0.2, 0.4], p=self.UIElements['rowColumnLayout1'], command=partial(arm_obj.connect_blend_nodes, arm_obj.jnt_arm_info, arm_obj.jnt_dict))
         self.UIElements['separator'] = cmds.separator( h=10, style='none')
         
         self.UIElements['json_filename'] = cmds.textFieldGrp( label='Json Filename: ', text='enter filename', p=self.UIElements['guiFlowLayout1'])
@@ -112,7 +118,10 @@ class RDojo_UI:
 
 
 
+
+
     #Creates an arm rig and controls by performing all 
+    #Use this button function to find out if this is for an arm or a leg. 
     def rig_arm_full_button(*args):
         arm_obj.rig_arm()
 
@@ -121,54 +130,7 @@ class RDojo_UI:
 
 
 
-    #define which joints will be built and where they will be placed. 
-    def define_joints_button(*args):
-        arm_obj.define_joints(arm_obj.jnt_arm_info, arm_obj.jnt_prefix, arm_obj.jnt_dict)
-
-
-        
-
-
-
-
-    #Create all joints
-    def create_joints_button(*args):
-        arm_obj.create_joints(arm_obj.jnt_dict, arm_obj.jnt_rot)
-        
-
-
-
-
-
-    # ---- IK Controls ----
-    # creates ik controls to drive the rotation values of the ik arm_obj.joints
-    def make_ik_controls_button(*args):
-        arm_obj.make_ik_controls(arm_obj.jnt_arm_info, arm_obj.jnt_dict, arm_obj.jnt_rot)
-
-
-
-
-
-
-
-    # ---- FK Controls ----
-    # creates fk controls to drive the rotation values of the fk arm_obj.joints
-    def make_fk_controls_button(*args):
-        arm_obj.make_fk_controls(arm_obj.jnt_arm_info, arm_obj.jnt_dict, arm_obj.jnt_rot)
-
-
-
-
-
-
-    # ---- Blend Nodes ----
-    # Use the color blend attribute to connect ik and fk rotational values to drive arm_obj.joints
-    def connect_blend_nodes_button(*args):
-        arm_obj.connect_blend_nodes(arm_obj.jnt_arm_info, arm_obj.jnt_dict)
-
-
-
-
+    #Incomplete function
     def text_entry(*args):
         '''text field that takes the joint name information'''
         '''incomplete'''
@@ -177,7 +139,11 @@ class RDojo_UI:
         '''text field that takes the joint placement - 3 floats separated by commas'''
         '''assign values in fields to class variables'''
 
-        '''function that holds two functions 1)text_entry 2)writeJson '''
+
+
+    def create_separators(num_sep, *args):
+        for i in range(num_sep):
+            cmds.separator( h=10, style='none')
 
 
 
