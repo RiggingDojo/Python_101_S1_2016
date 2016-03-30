@@ -6,7 +6,7 @@ import system.utils as utils
 
 
 class Rig_Arm:
-	'''creates instance of arm, default is right arm'''
+	'''creates instance of arm, default is right arm blah blha blha blha'''
 
 	def __init__( self ):
 		# Get our joint lists from a json file.
