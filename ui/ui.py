@@ -20,6 +20,14 @@ class RDojo_UI:
 		This will allow us to access these elements later. """
 		self.UIElements = {}
 
+		# this dictionary will store all of the avilable riggind modules
+		self.rigmodlst = []
+		rigcontents = os.listdir( os.environ["RDOJO_DATA"] + 'rig/' )
+		for mod in rigcontents:
+			if '.pyc' not in mod or '.__init__' not in mod:
+				self.rigmodlst.append( mod )
+		print self.rigmodlst
+
 	def ui( self, *args ):
 		""" Check to see if the UI exists """
 		windowName = "Window"

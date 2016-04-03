@@ -45,22 +45,23 @@ class Rig_Arm:
 		# de select because of the check in class
 		cmds.select( d=True )
 		# Create Ik joints, passing in keys
-		self.rig_info['ikjnts'] = utils.createJoint( self.module_info['ikjnts'] )
+		self.rig_info['ikjnts'] = utils.createJoint( self.module_info['ikjnts'], self.rig_info['positions'], self.instance )
 		#cmds.select( d=True )
 		
 		# Create Fk joints
-		self.rig_info['fkjnts'] = utils.createJoint( self.module_info['fkjnts'] )
+		self.rig_info['fkjnts'] = utils.createJoint( self.module_info['fkjnts'], self.rig_info['positions'], self.instance )
 		#cmds.select( d=True )
 		
 		# Create Rig joints
-		self.rig_info['rigjnt'] = self.createJoint( self.module_info['rigjnt'] )
+		self.rig_info['rigjnt'] = self.createJoint( self.module_info['rigjnt'], self.rig_info['positions'], self.instance )
 		#cmds.select( d=True )		
 
 
 		# Create Ik Rig
 		# Ik handle
 		#  "ikcontrols" : ["ctrl_ik_arm, ikh_arm", "ctrl_pv_arm"]
-		ikh = cmds.ikHandle( n=self.module_info["ikcontrols"][1], sj=self.module_info['ikjnts'][0], ee=self.module_info['ikjnts'][2], sol='ikRPsolver', p=2, w=1)
+		ikhname = self.module_info["ikcontrols"][1].replace( '_s_', self.instance )
+		self.rig_info['ikh'] = cmds.ikHandle( n=ikhname, sj=self.rig_info['ikjnts'][0], ee=self.rig_info['ikjnts'][2], sol='ikRPsolver', p=2, w=1)
 		
 		utils.createControl( [[self.module_info['positions'][2], self.module_info["ikcontrols"][0]]] )
 
@@ -80,7 +81,7 @@ class Rig_Arm:
 
 		
 		# Create FK Rig
-		fkctrlinfo = utils.createControl( [[self.module_info["positions"][2], self.module_info["fkcontrols"][2]], 
+		self.rig_info['fkcontrols'] = utils.createControl( [[self.module_info["positions"][2], self.module_info["fkcontrols"][2]], 
 		[self.module_info["positions"][1], self.module_info["fkcontrols"][1]], 
 		[self.module_info["positions"][0], self.module_info["fkcontrols"][0]]] ) 
 

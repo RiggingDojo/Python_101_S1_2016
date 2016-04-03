@@ -16,14 +16,19 @@ def readJson( fileName ):
 		data = ( open(infile.name, 'r' ).read())
 	return data
 
-def createJoint( jntinfo ):
+def createJoint( name, position, instance ):
+	'''
 	for i in range(len( jntinfo )):
 		cmds.joint( n=jntinfo[i], p=self.module_info['positions'][i] )
+	'''
+	jnt_list = [cmds.joint( n = name[i].replace('_s_', instance), p=position[i]) for i in range(len(name)) ]
+	cmds.select( d=True )
+	return( jnt_list )
 	#orient joints
 	for i in range(len( jntinfo )):
 		cmds.joint(jntinfo[i], edit=True, zeroScaleOrient=True, orientJoint="xyz", secondaryAxisOrient="yup", children=True)
 
-def createControl( self, ctrlinfo ):
+def createControl( ctrlinfo ):
 	for info in ctrlinfo:
 		# Create ik control
 		# get ws position of wrist joint
@@ -39,7 +44,7 @@ def createControl( self, ctrlinfo ):
 
 
 
-def calculatePVPosition( self, jnts ):
+def calculatePVPosition( jnts ):
 	#Calculates the pole vector of jnts
 	from maya import cmds, OpenMaya
 	start = cmds.xform( jnts[0], q=True, ws=True, t=True )
