@@ -12,16 +12,12 @@ numjnts = 4
 
 class Rig_Arm:
     def __init__(self, uiinfo):
-        print uiinfo
         # Get our joint lists from a json file.
-        print os.environ["RDOJO_DATA"]
         data_path = os.environ["RDOJO_DATA"] + 'data/rig/arm.json'
         # Use our readJson function
         data = utils.readJson(data_path)
         # Load the json into a dictionary
         self.module_info = json.loads( data )
-        """ NOTE: If we wanted to build our arm from some set of joints
-        in the scene, we could overwrite self.module_info['positions']"""
         # Make a new dictionary to store information about the arm rig.
         self.rig_info = {}
 
@@ -36,18 +32,10 @@ class Rig_Arm:
         else:
             self.rig_info['positions']=self.module_info['positions']
 
-        """ Instead of the else:, we could just return a message that the selection
-        does not meet requirements for an arm. """
-
-
-        """ What if we want a left and a right arm?  For now we will set
-        a temporary variable to override the name, but later we will build
-        this into the UI """
         self.instance = uiinfo[0]
 
         # Run rig_arm function
         self.install()
-
 
     def install(self):
         cmds.select(d=True)
@@ -58,12 +46,9 @@ class Rig_Arm:
         self.rig_info['fkjnts']=utils.createJoint(self.module_info['fkjnts'], self.rig_info['positions'], self.instance)
  
         # Create Rig joints
-        self.rig_info['rigjnts']=utils.createJoint(self.module_info['rigjnts'], self.rig_info['positions'], self.instance)
-        
+        self.rig_info['rigjnts']=utils.createJoint(self.module_info['rigjnts'], self.rig_info['positions'], self.instance)      
     
         # Create Ik Rig
-        # Ik handle
-        #"ikcontrols": ["ctrl_ik_arm, ikh_arm", "ctrl_pv_arm"
         # Generate a name for the ik handle using self.instance
         ikhname = self.module_info["ikcontrols"][1].replace('_s_', self.instance)
         self.rig_info['ikh']=cmds.ikHandle(n=ikhname, sj=self.rig_info['ikjnts'][0], ee=self.rig_info['ikjnts'][2], sol='ikRPsolver', p=2, w=1 )
@@ -103,11 +88,3 @@ class Rig_Arm:
   
         # Constrain fk joints to controls.
         [cmds.parentConstraint(self.rig_info['fkcontrols'][i][1], self.rig_info['fkjnts'][i], mo=True) for i in range(len(self.rig_info['fkcontrols']))]
-
-        # SetupIk/Fk match scriptJob
-        """
-        switchAttr=(self.rig_info['setcontrol'][1]+".IK_FK")
-        cmds.scriptJob( runOnce=False, per=True, attributeChange=[switchAttr, utils.match_ikfk] )
-        #matchNodeName = cmds.scriptNode( st=1, bs='print "doStuff"', n='script', stp='python')
-        print cmds.scriptJob( listJobs=True )
-        """
