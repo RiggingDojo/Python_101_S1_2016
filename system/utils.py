@@ -3,7 +3,7 @@ import json
 import tempfile
 
 def writeJson( fileName, data ):
-	''' writes a json file'''
+	''' writes a pretty json file'''
 	
 	with open(fileName, 'w') as outfile:
 		json.dump( data, outfile, sort_keys = True, indent = 4, ensure_ascii=False )

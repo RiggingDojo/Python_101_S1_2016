@@ -10,7 +10,7 @@ numjnts = 4
 
 
 class Rig_Arm:
-	'''creates instance of arm, default is right arm blah blha blha blha'''
+	'''creates instance of arm'''
 
 	def __init__( self ):
 		# Get our joint lists from a json file.
@@ -36,7 +36,7 @@ class Rig_Arm:
 			self.rig_info['positions'] = self.module_info['positions']
 
 		self.instance = '_L_'
-		# run righ_arm function
+		# run rig_arm function
 		self.rig_arm()
 
 
@@ -63,21 +63,21 @@ class Rig_Arm:
 		ikhname = self.module_info["ikcontrols"][1].replace( '_s_', self.instance )
 		self.rig_info['ikh'] = cmds.ikHandle( n=ikhname, sj=self.rig_info['ikjnts'][0], ee=self.rig_info['ikjnts'][2], sol='ikRPsolver', p=2, w=1)
 		
-		utils.createControl( [[self.module_info['positions'][2], self.module_info["ikcontrols"][0]]] )
+		self.rig_info['ikcontrol'] = utils.createControl( [[self.module_info['positions'][2], self.module_info["ikcontrols"][0]]] )
 
-		pvpos = utils.calculatePVPosition( [self.module_info['ikjnts'][0], self.module_info['ikjnts'][1], self.module_info['ikjnts'][2]] )
+		pvpos = utils.calculatePVPosition( [self.rig_info['ikjnts'][0], self.rig_info['ikjnts'][1], self.rig_info['ikjnts'][2]] )
 
 		pvctrlinfo = [ [pvpos, self.module_info["ikcontrols"][2]] ]
-		utils.createControl(pvctrlinfo)
+		self.rig_info['pvcontrol'] = utils.createControl(pvctrlinfo)
 
 		# Parent ikh to ctrl
-		cmds.parent( self.module_info["ikcontorls"][1], self.module_info["ikcontrols"][0])
+		cmds.parent( self.rig_info["ikh"][0], self.rig_info["ikcontrols"][1] )
 
 		# PV constraint
-		cmds.poleVectorConstraint( self.module_info["ikcontrols"][2], self.module_info["ikcontrols"][1])
+		cmds.poleVectorConstraint( self.rig_info["ikcontrols"][1], self.rig_info["ikjnts"][2], mo=True )
 
 		# Orient constrain arm ik_wrist to ctrl arm
-		cmds.orientConstraint( self.module_info["ikcontrols"][0], self.module_info['ikjnts'][2], mo=True)
+		cmds.orientConstraint( self.rig_info["ikcontrols"][0], self.rig_info['ikjnts'][2], mo=True)
 
 		
 		# Create FK Rig
@@ -85,9 +85,9 @@ class Rig_Arm:
 		[self.module_info["positions"][1], self.module_info["fkcontrols"][1]], 
 		[self.module_info["positions"][0], self.module_info["fkcontrols"][0]]] ) 
 
-		#Parent fk controls
-		cmds.parent( fkctrlinfo[0][0], fkctrlinfo[1][1][0] )
-		cmds.parent( fkctrlinfo[1][0], fkctrlinfo[2][1][0] )
+		#Parent fk controls`
+		cmds.parent( self.rig_info['fkcontrols'][2][0], self.rig_info['fkcontrols'][1][1] )
+		cmds.parent( self.rig_info['fkcontrols'][1][0], self.rig_info['fkcontrols'][0][1] )
 
 		# Create Rig jnts by parenting FK and IK to Rig jnts
 		pass
