@@ -13,8 +13,7 @@ import os
 print 'This is rig_arm'
 
 
-
-data_path = os.environ["RD_DATA"] + 'rig/arm.json'
+data_path = os.environ["RD_DATA"] + 'data/rig/arm.json'
 print data_path
 
 

@@ -18,7 +18,6 @@ arm_obj = rig.Rig_Arm()
 
 
 
-
 ##############
 # Menu Items #
 ##############
@@ -46,6 +45,18 @@ class RDojo_UI:
         self.UIElements = {}
 
 
+        #List to store all available rigging modules in the rig folder.
+        rig_contents = os.listdir(os.environ["RD_DATA"] + 'rig/' )
+        self.rigmodlist = []
+        
+        #I had touble getting 'or' to work here. This 'and' logic works, but why?
+        self.rigmodlist.append([mod for mod in rig_contents if '.pyc' not in mod and '.__init__' not in mod])
+
+
+        
+
+
+
 
 
 
@@ -59,7 +70,7 @@ class RDojo_UI:
             cmds.deleteUI(window_name)
 
         '''define dimensions of window and buttons'''
-        window_width = 360
+        window_width = 480
         window_height = 480
         button_width = 50
         button_height = 30
