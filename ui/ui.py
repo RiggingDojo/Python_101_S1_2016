@@ -67,4 +67,5 @@ class RDojo_UI:
 mymenu  = cmds.menu( 'RDojo_Menu', label='RDMenu', to=True, p='MayaWindow' )
 cmds.menuItem( label='Rig_Arm', p=mymenu, command=create_jnts )
 '''
+RDojo_UI()
 

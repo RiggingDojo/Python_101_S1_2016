@@ -53,7 +53,7 @@ class Rig_Arm:
 		#cmds.select( d=True )
 		
 		# Create Rig joints
-		self.rig_info['rigjnt'] = self.createJoint( self.module_info['rigjnt'], self.rig_info['positions'], self.instance )
+		self.rig_info['rigjnt'] = utils.createJoint( self.module_info['rigjnt'], self.rig_info['positions'], self.instance )
 		#cmds.select( d=True )		
 
 

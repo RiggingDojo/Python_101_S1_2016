@@ -34,7 +34,7 @@ def createControl( ctrlinfo ):
 		# get ws position of wrist joint
 		pos = info[0]
 		# create an empty group
-		ctrlgrp = cmds.group( em=True, name=info[2] )
+		ctrlgrp = cmds.group( em=True, name=info[1] )
 		# Create circle control object
 		ctrl = cmds.circle( n=info[1], nr=(0, 0, 1), c=(0, 0, 0) )
 		# Parent the control to the group
