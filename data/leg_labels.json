@@ -1,0 +1,20 @@
+{
+  "thigh": "thigh",
+  "right": "R_",
+  "plusMinusPrefix": "plusminus_",
+  "footEnd": "footEnd",
+  "ikPrefix": "ik_",
+  "blendingNode": "FKIK_Blend",
+  "bindPrefix": "bn_",
+  "foot": "foot",
+  "groupPrefix": "grp_",
+  "legSufix": "leg",
+  "knee": "knee",
+  "poleVector": "pv_",
+  "ikHandle": "ikh_",
+  "jointSufix": "_jnt",
+  "multiplyDividePrefix": "multdiv_",
+  "fkPrefix": "fk_",
+  "controlPrefix": "ctrl_",
+  "left": "L_"
+}

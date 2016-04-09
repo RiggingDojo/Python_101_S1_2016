@@ -1,27 +1,32 @@
 import system.utils as utils
 from rig.Limb import Limb as Limb
+import os
 
-className = 'Layout_Arm'
+className = 'LayoutLeg'
 
 
-class Layout_Arm(Limb):
+class LayoutLeg(Limb):
 	'''
-	A class for laying out the joint chain for an arm rig
+	A class for laying out the joint chain for an leg rig
 
 	Attributes:
 		className: The name of the class for external reference
 	'''
-	def __init__(self):
+
+	fileNames = os.environ['RDOJO_DATA'] + 'leg_labels.json'
+	filePos = os.environ['RDOJO_DATA'] + 'leg_positions.json'
+
+	def __init__(self, side):
 		'''
 		Init function that just calls parent class initializer
 		'''
-		side = 'right'
-		Limb.__init__(self, side)
-		self.layoutArm()
+		self.side = side
+		Limb.__init__(self, self.side, self.fileNames, self.filePos)
+		self.layoutLeg()
 
-	def layoutArm(self):
+	def layoutLeg(self):
 		'''
-		The method that creates the actual layout for the arm
+		The method that creates the layout for the leg
 		'''
 		# Iterate skeleton dictionary data to create joints, controls and groups
 		for key, value in self.jntInfo.iteritems():

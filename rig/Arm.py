@@ -1,6 +1,8 @@
 import maya.cmds as cmds
+import os
 import system.utils as utils
 from rig.Limb import Limb as Limb
+reload(utils)
 
 className = 'Arm'
 
@@ -13,46 +15,33 @@ class Arm(Limb):
 		className: The name of the class for external reference
 		nddJnts: The number of joints that needs to be selected for the arm being rigged
 		args: Optional argument to indicate side in the case arm is a mirrored arm
+		fileNames: The path to the json file with the default labels for the limb
+		filePos: The path to the json file with the default positions for the limb
 	'''
 	nddJnts = 4
+	fileNames = os.environ['RDOJO_DATA'] + 'arm_labels.json'
+	filePos = os.environ['RDOJO_DATA'] + 'arm_positions.json'
 
-	def __init__(self, *args):
+	def __init__(self, side):
 		'''
 		Init function that calls the parent class initializer and calls the rig arm function
 		in the case we have all the needed joints selected. When an Arm is created from the menu,
 		it's always a right arm, when it's mirrored, a parameter indicating side is passed with
 		the constructor.
+
+		Attributes:
+		side: Side of the limb
 		'''
 		# Get the side if the arm
-		if not args:
-			self.side = 'right'
-		else:
-			self.side = args[0]
+		self.side = side
 		# Call parent's class initializer
-		Limb.__init__(self, self.side)
+		Limb.__init__(self, self.side, self.fileNames, self.filePos)
 		self.nddJnts = Arm.nddJnts
 		if (len(cmds.ls(sl=True)) == self.nddJnts):
-			self.getLayoutPos(cmds.ls(sl=True))
+			Limb.getLayoutPos(self, cmds.ls(sl=True))
 			self.rigArm()
 		else:
 			cmds.confirmDialog(t='Warning!', m='Please select the 4 bones of the arm.', b='OK', db='OK')
-
-	def getLayoutPos(self, jntList):
-		'''
-		Function that acquires the positions of the bones of the layout object and adds them
-		to the data dictionary, replacing the default positions
-
-		param jntList: The list with the bones of the layout object
-		type jntList: list
-		'''
-		# Get position of the selected joints and then delete them
-		jntPosList = []
-		jntPosList = [cmds.xform(jnt, q=True, ws=True, t=True) for jnt in jntList]
-		cmds.delete()
-		# Replace default positions in the dictionary for the new ones
-		for key, value in self.jntInfo.iteritems():
-			for i in range(len(value)):
-				value[i][1] = jntPosList[i]
 
 	def rigArm(self):
 		'''

@@ -30,6 +30,7 @@ def createDict(keys, values, names, side):
 	# Declare temp variables
 	dict = {}
 	tmpJntList = []
+	print names
 	# Feed data into dictionary
 	for label in keys:
 		tmpJntList = []
@@ -37,6 +38,7 @@ def createDict(keys, values, names, side):
 			newName = label + names[side] + values[i][0] + names['jointSufix']
 			tmpJntList.append([newName, values[i][1]])
 		dict[label] = tmpJntList
+	print dict
 	return dict
 
 
@@ -101,7 +103,7 @@ def lockAndHide(attrList, controlName):
 	[cmds.setAttr(controlName + attr, e=True, l=True, k=False, cb=False) for attr in attrList]
 
 
-def mirrorJointChain(joint, axis, names):
+def mirrorJointChain(joint, axis, names, side):
 	"""
 	A function that mirrors a joint chain based in the passed axis. Returns the mirrored chain
 
@@ -112,11 +114,20 @@ def mirrorJointChain(joint, axis, names):
 	:rtype mirrorJntList: list
 	"""
 	mirrorJntList = []
+	originSide = ''
+	mirrorSide = ''
+	# Get the side we need to mirror
+	if side == 'left':
+		originSide = names['left']
+		mirrorSide = names['right']
+	elif side == 'right':
+		originSide = names['right']
+		mirrorSide = names['left']
 	# Get the selected axis and return the mirrored chain depending on the axis
 	if axis == 'xy':
-		mirrorJntList = cmds.mirrorJoint(joint, mirrorXY=True, mirrorBehavior=True, searchReplace=('R', 'L'))
+		mirrorJntList = cmds.mirrorJoint(joint, mxy=True, mb=True, sr=(mirrorSide, originSide))
 	elif axis == 'yz':
-		mirrorJntList = cmds.mirrorJoint(joint, mirrorYZ=True, mirrorBehavior=True, searchReplace=('R', 'L'))
+		mirrorJntList = cmds.mirrorJoint(joint, myz=True, mb=True, sr=(mirrorSide, originSide))
 	elif axis == 'xz':
-		mirrorJntList = cmds.mirrorJoint(joint, mirrorXZ=True, mirrorBehavior=True, searchReplace=('R', 'L'))
+		mirrorJntList = cmds.mirrorJoint(joint, mxz=True, mb=True, sr=(mirrorSide, originSide))
 	return mirrorJntList

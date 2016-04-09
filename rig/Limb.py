@@ -2,36 +2,46 @@ import maya.cmds as cmds
 import maya.OpenMaya as OpenMaya
 import system.utils as utils
 import json
-import os
+reload(utils)
 
 
 class Limb:
 	'''
 	A class for creating rig sections such as legs, arms
 	'''
-	def __init__(self, side):
+	def __init__(self, side, fileNames, filePos):
 		'''
 		Initializes the class with its necessary attributes
 
 		Attributes:
 			side: The side of the body where the limb will be placed
 			jntPos: List with the positions of the bones
-			names: List with the names conventions for the bones
-			jntChains: The labels that will be used as keys for a dictionary
-			jntInfo: Dictionary that holds bone names and bone positions for the limb
+			fileNames: The path to the json file with the default labels for the limb
+			filePos: The path to the json file with the default positions for the limb
 		'''
-		# Get the path for the files with limb data
-		fileNames = os.environ['RDOJO_DATA'] + 'default_labels.json'
-		filePos = os.environ['RDOJO_DATA'] + 'default_positions.json'
 		# Initialize attributes
 		self.side = side
 		self.jntPos = json.loads(utils.readJson(filePos))
 		self.names = json.loads(utils.readJson(fileNames))
-		self.jntChains = (
-			self.names['ikPrefix'],
-			self.names['fkPrefix'],
-			self.names['bindPrefix'])
+		self.jntChains = (self.names['ikPrefix'], self.names['fkPrefix'], self.names['bindPrefix'])
 		self.jntInfo = utils.createDict(self.jntChains, self.jntPos, self.names, self.side)
+
+	def getLayoutPos(self, jntList):
+		'''
+		Function that acquires the positions of the bones of the layout object and adds them
+		to the data dictionary, replacing the default positions
+
+		param jntList: The list with the bones of the layout object
+		type jntList: list
+		'''
+		# Get position of the selected joints and then delete them
+		jntPosList = []
+		jntPosList = [cmds.xform(jnt, q=True, ws=True, t=True) for jnt in jntList]
+		cmds.delete()
+		# Replace default positions in the dictionary for the new ones
+		for key, value in self.jntInfo.iteritems():
+			for i in range(len(value)):
+				value[i][1] = jntPosList[i]
 
 	def createIK(self, jntStart, jntEnd, ikHandleName):
 		'''
